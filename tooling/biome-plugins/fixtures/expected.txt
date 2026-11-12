@@ -1,0 +1,6 @@
+error apps/app/hex.ts:1 Cor hex literal fora de packages/tokens: use um token de @farol/tokens.
+error apps/app/hex.ts:2 Cor hex literal fora de packages/tokens: use um token de @farol/tokens.
+error apps/app/hex.ts:3 Cor hex literal fora de packages/tokens: use um token de @farol/tokens.
+error apps/app/hex.ts:4 Cor hex literal fora de packages/tokens: use um token de @farol/tokens.
+error packages/ui-native/src/botao.tsx:3 Cor hex literal fora de packages/tokens: use um token de @farol/tokens.
+warning apps/app/texto.tsx:5 Texto fixo em JSX: use t() de packages/i18n.
