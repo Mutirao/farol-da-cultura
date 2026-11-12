@@ -5,6 +5,7 @@
   "dependencies": {
     "@farol/i18n": "workspace:*",
     "@farol/tokens": "workspace:*",
+    "@farol/ui-native": "workspace:*",
     "@expo/ui": "~58.0.28",
     "expo": "~58.0.24",
     "expo-constants": "~58.0.16",
