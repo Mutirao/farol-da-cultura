@@ -52,17 +52,23 @@ ADB=(adb)
 [[ -n "${ANDROID_SERIAL:-}" ]] && ADB=(adb -s "$ANDROID_SERIAL")
 sh_adb() { "${ADB[@]}" shell "$@" | tr -d '\r'; }
 
-if sh_adb dumpsys window | grep -q 'isKeyguardShowing=true'; then
-  echo "ABORTADO: aparelho bloqueado (isKeyguardShowing=true). Desbloqueie e rode de novo." >&2
-  exit 3
-fi
+# Captura antes de testar: `dumpsys | grep -q` com pipefail dá falso negativo (SIGPIPE).
+device_ready() {
+  local window power
+  window="$(sh_adb dumpsys window)"
+  power="$(sh_adb dumpsys power)"
+  ! grep -q 'isKeyguardShowing=true' <<<"$window" && grep -q 'mWakefulness=Awake' <<<"$power"
+}
+require_ready() {
+  if ! device_ready; then
+    echo "ABORTADO: aparelho bloqueado ou com tela apagada. Desbloqueie e rode de novo." >&2
+    exit 3
+  fi
+}
+require_ready
 
 # Scheme real registrado pelo app: prefere o igual ao package (app.config.ts usa scheme = id).
-SCHEMES="$(sh_adb dumpsys package "$PKG" | awk '
-  /^ *Schemes:/ { inside = 1; next }
-  inside && /^ *[A-Za-z][A-Za-z0-9.+-]*:$/ { gsub(/[ :]/, ""); print; next }
-  inside && /^ *[A-Z][A-Za-z ]*:$/ { inside = 0 }
-')"
+SCHEMES="$(sh_adb dumpsys package "$PKG" | grep -oE 'Scheme: "[^"]+"' | sed -E 's/Scheme: "(.*)"/\1/' | sort -u)"
 if grep -qx "$PKG" <<<"$SCHEMES"; then
   SCHEME="$PKG"
 else
@@ -95,6 +101,7 @@ swipe() { sh_adb input swipe "$SWIPE_X" "$1" "$SWIPE_X" "$2" "$SWIPE_MS"; sleep 
 for ((round = 1; round <= ROUNDS; round++)); do
   out="$OUT_DIR/$VARIANT-rodada$round.txt"
   echo "== variante $VARIANT, rodada $round/$ROUNDS -> $out"
+  require_ready
   sh_adb am force-stop "$PKG"
   sh_adb am start -W -a android.intent.action.VIEW -d "$URL" "$PKG" >/dev/null
   sleep "$RENDER_WAIT_S"
@@ -120,8 +127,15 @@ for ((round = 1; round <= ROUNDS; round++)); do
     sh_adb dumpsys gfxinfo "$PKG"
   } >"$out"
 
+  # Rodada que terminou com o aparelho bloqueado/apagado não vale: não entra no resumo.
+  if ! device_ready; then
+    mv "$out" "$out.invalido"
+    echo "ABORTADO: aparelho bloqueou durante a rodada $round; saída em $out.invalido" >&2
+    exit 5
+  fi
+
   # Resumo: primeira ocorrência de cada linha na seção "dumpsys gfxinfo <pkg>" (agregado do app).
-  awk -v variant="$VARIANT" -v round="$round" -v file="$(basename "$out")" '
+  line="$(awk -v variant="$VARIANT" -v round="$round" -v file="$(basename "$out")" '
     /^######## dumpsys gfxinfo .* ########$/ && $0 !~ /framestats/ { inside = 1; next }
     !inside { next }
     /^Total frames rendered:/ && total == "" { total = $4 }
@@ -131,5 +145,11 @@ for ((round = 1; round <= ROUNDS; round++)); do
     /^95th percentile:/ && p95 == "" { p95 = $3; sub(/ms$/, "", p95) }
     /^99th percentile:/ && p99 == "" { p99 = $3; sub(/ms$/, "", p99) }
     END { printf "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", variant, round, total, janky, pct, p50, p90, p95, p99, file }
-  ' "$out" | tee -a "$SUMMARY"
+  ' "$out")"
+  if [[ "$(cut -d, -f3 <<<"$line")" =~ ^0?$ ]]; then
+    mv "$out" "$out.invalido"
+    echo "ABORTADO: rodada $round sem quadros no gfxinfo; saída em $out.invalido" >&2
+    exit 5
+  fi
+  echo "$line" | tee -a "$SUMMARY"
 done

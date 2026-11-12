@@ -17,18 +17,18 @@ O spike vive no branch `spike/lista`, que **não é mergeado**; só este ADR e
 
 ### O que foi medido
 
-| Item          | Valor                                                                                                                                                                                                                          |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Dados         | 500 cartões falsos de `apps/app/src/spike/fakeCards.ts`, PRNG `mulberry32` com semente fixa `0x0f0010`; título, data, categoria e miniatura (`index % 20`)                                                                     |
-| Miniaturas    | 20 PNGs locais em `assets/spike-lista/`, no máximo 480 px                                                                                                                                                                      |
-| Cartão        | `apps/app/src/spike/SpikeCard.tsx`, altura fixa 96 dp, `expo-image` com `recyclingKey={card.id}` (chave estável, não índice), `transition={0}`                                                                                 |
-| Variante A    | `@expo/ui` 58.0.28: `Host` > `List` > `List.ForEach` (`keyExtractor`, `estimatedItemSize=96`) > `RNHostView matchContents={{ vertical: true }}` > cartão; rota `(dev)/spike-lista-a.tsx`                                       |
-| Variante B    | `@shopify/flash-list` 2.3.2 (resolvida por `npx expo install`, igual à do plano), `keyExtractor` estável; rota `(dev)/spike-lista-b.tsx`                                                                                       |
-| Build         | perfil EAS `preview` (release, `br.com.farol.cultura.preview`), id do build: _pendente_                                                                                                                                        |
-| Aparelho      | _pendente_                                                                                                                                                                                                                     |
-| Android       | _pendente_                                                                                                                                                                                                                     |
-| Protocolo     | `scripts/perf/measure-scroll.sh <package> <a\|b> 3`: 60 Hz fixos, abertura a frio por deep link, espera 5 s, `dumpsys gfxinfo reset`, 30 swipes (20 para baixo + 10 para cima, x=540, y 1900↔500, 200 ms, pausa 0,4 s), coleta |
-| Saídas brutas | `docs/adr/assets/0002/<a\|b>-rodada<N>.txt` (`framestats` + `gfxinfo`) e `docs/adr/assets/0002/resumo.csv`                                                                                                                     |
+| Item          | Valor                                                                                                                                                                                                                                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dados         | 500 cartões falsos de `apps/app/src/spike/fakeCards.ts`, PRNG `mulberry32` com semente fixa `0x0f0010`; título, data, categoria e miniatura (`index % 20`)                                                                                                                               |
+| Miniaturas    | 20 PNGs locais em `assets/spike-lista/`, no máximo 480 px                                                                                                                                                                                                                                |
+| Cartão        | `apps/app/src/spike/SpikeCard.tsx`, altura fixa 96 dp, `expo-image` com `recyclingKey={card.id}` (chave estável, não índice), `transition={0}`                                                                                                                                           |
+| Variante A    | `@expo/ui` 58.0.28: `Host` > `List` > `List.ForEach` (`keyExtractor`, `estimatedItemSize=96`) > `RNHostView matchContents={{ vertical: true }}` > cartão; rota `(dev)/spike-lista-a.tsx`                                                                                                 |
+| Variante B    | `@shopify/flash-list` 2.3.2 (resolvida por `npx expo install`, igual à do plano), `keyExtractor` estável; rota `(dev)/spike-lista-b.tsx`                                                                                                                                                 |
+| Build         | perfil EAS `preview` (release, `br.com.farol.cultura.preview`, versionName 0.1.0, versionCode 1), id do build `948d4e59-beb4-4763-a8c3-735cd78503df` (commit `04ab6a5`), [logs](https://expo.dev/accounts/lpirola/projects/farol-da-cultura/builds/948d4e59-beb4-4763-a8c3-735cd78503df) |
+| Aparelho      | motorola moto g35 5G (1080×2400, 400 dpi), serial `ZF525KHQ9G`                                                                                                                                                                                                                           |
+| Android       | 15 (API 35), `motorola/manila_gn/manila:15/VUOAS35.116-151-3/07db47:user/release-keys`                                                                                                                                                                                                   |
+| Protocolo     | `scripts/perf/measure-scroll.sh <package> <a\|b> 3`: 60 Hz fixos, abertura a frio por deep link, espera 5 s, `dumpsys gfxinfo reset`, 30 swipes (20 para baixo + 10 para cima, x=540, y 1900↔500, 200 ms, pausa 0,4 s), coleta                                                           |
+| Saídas brutas | `docs/adr/assets/0002/<a\|b>-rodada<N>.txt` (`framestats` + `gfxinfo`) e `docs/adr/assets/0002/resumo.csv`                                                                                                                                                                               |
 
 ### Regra de decisão (escrita antes de medir)
 
@@ -44,6 +44,21 @@ Como os números são agregados (fixado antes da primeira medição, neste commi
 - Todos os valores saem da seção `dumpsys gfxinfo <package>` de cada arquivo bruto (a
   primeira ocorrência, que é o agregado do processo). Se a diferença ficar dentro de
   ±1 ponto, a incerteza é registrada aqui.
+
+### Desvios e achados do spike
+
+- O primeiro build `preview` (`94ce21af-6ba3-4d3d-bd6f-9363eb5a959e`) falhou no bundle: o
+  arquivador do EAS omitiu `packages/tokens/dist/native.ts` (versionado, mas sob `dist/` do
+  `.gitignore` raiz, com reinclusão `!dist/` em `packages/tokens/.gitignore` que o EAS não
+  respeitou), e o Metro não resolveu `@farol/tokens/native`. O spike contorna com um
+  `.easignore` na raiz. **Isso afeta qualquer build EAS a partir do `main`** e precisa de
+  correção própria fora deste spike.
+- A ordem do protocolo é: abrir a rota, esperar a renderização inicial e só então fazer o
+  `gfxinfo reset`. Assim os quadros de abertura a frio não entram na medição de rolagem.
+- A API instalada de `@expo/ui` (58.0.28) bate com os nomes do plano (`List`, `List.ForEach`,
+  `RNHostView`, `Host`). A rota A importa `@expo/ui` direto, com `biome-ignore` da regra
+  `noRestrictedImports`, porque `@farol/ui-native` não tem wrapper de lista. Isso só vale
+  neste branch, que não é mergeado.
 
 ## Resultados
 
