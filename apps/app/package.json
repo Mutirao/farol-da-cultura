@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo/ui": "~58.0.28",
     "@farol/i18n": "workspace:*",
     "@farol/tokens": "workspace:*",
     "@farol/ui-native": "workspace:*",
-    "@expo/ui": "~58.0.28",
+    "@shopify/flash-list": "2.3.2",
     "expo": "~58.0.24",
     "expo-constants": "~58.0.16",
     "expo-dev-client": "~58.0.19",
