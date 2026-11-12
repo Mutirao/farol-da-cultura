@@ -1,0 +1,20 @@
+{
+  "name": "farol-da-cultura",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "lint": "biome ci .",
+    "format": "biome format --write .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "build": "turbo run build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.7",
+    "turbo": "2.11.11"
+  }
+}
