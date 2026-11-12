@@ -120,6 +120,60 @@ https://expo.dev/accounts/lpirola/projects/farol-da-cultura/builds/24fe12a6-ce0c
 status observado inicialmente `IN_PROGRESS`, plataforma `ANDROID`, perfil
 `development`, appIdentifier `br.com.farol.cultura.dev`, SDK `58.0.0`.
 
+## Android: APK instalado; verificação visual bloqueada pelo aparelho
+
+Build `24fe12a6-ce0c-49b3-932e-23e66a473d01`: status final observado
+`FINISHED` em `eas build:view --json` (exit 0).
+
+Artefato:
+https://expo.dev/artifacts/eas/-eUOvzgBo1o-aqKNjqOoUMw-5kHbDR7CRqZEQaP7YY4.apk
+
+Download via `curl -fL`: exit 0. Instalação no Moto G35 5G (`ZF525KHQ9G`):
+
+```text
+Performing Streamed Install
+Success
+ADB_INSTALL_EXIT=0
+```
+
+`adb reverse tcp:8087 tcp:8087` (exit 0) conecta o dispositivo ao Metro local.
+Abertura do dev client:
+
+```sh
+adb shell am start -W -a android.intent.action.VIEW -d 'br.com.farol.cultura.dev://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8087' br.com.farol.cultura.dev
+```
+
+Exit 0; saída literal:
+
+```text
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: br.com.farol.cultura.dev/.MainActivity
+WaitTime: 3240
+Complete
+```
+
+Isso NÃO comprova que as abas abriram: a tela permanece protegida pelo keyguard.
+`adb shell wm dismiss-keyguard` e gesto normal de swipe não desbloquearam o
+aparelho. A inspeção via UIAutomator mostrou literalmente:
+
+```text
+Desbloqueie com PIN ou impressão digital
+```
+
+Nenhum PIN foi solicitado no chat, adivinhado ou digitado. A pessoa precisa
+desbloquear fisicamente o Moto G35 para permitir a verificação das quatro abas.
+Nenhuma captura do bloqueio pessoal foi adicionada ao repositório como falsa
+evidência do app. As capturas `docs/evidencias/f0-07-android.png` (relativo a
+`apps/app`) e das demais abas continuam PENDENTES. O PR não deve ser mergeado
+até a verificação visual Android; os seis checks do CI estavam verdes no
+commit `474f12c` (`app`, `check`, `gitleaks`, `hooks`, `pgtap`, `skills`).
+
+Para retomar, após a pessoa desbloquear o aparelho: iniciar Metro com
+`npx expo start --dev-client --localhost --port 8087`, repetir reverse/abertura,
+fechar o diálogo inicial do dev client se houver, navegar pelas quatro abas e
+capturar cada tela com `adb exec-out screencap -p`.
+
 ## iOS bloqueado (H3)
 
 `eas build --profile development --platform ios --non-interactive --no-wait`:
