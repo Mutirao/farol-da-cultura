@@ -1,0 +1,2 @@
+-- Seed local intencionalmente vazio na Fase 0 (F0-06).
+-- Dados de desenvolvimento entram aqui em fases posteriores; nunca dados reais.

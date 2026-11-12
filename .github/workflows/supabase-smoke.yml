@@ -1,0 +1,47 @@
+name: Supabase smoke
+
+on:
+  pull_request:
+    paths:
+      - "supabase/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/supabase-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/supabase-smoke.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-smoke-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pgtap:
+    name: pgtap
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: supabase/setup-cli@689adcfb80d947100a1eab127289b97d1fb07b13 # v3.2.0
+        with:
+          version: 3.1.0
+
+      - name: supabase db start
+        run: supabase db start
+
+      - name: supabase test db
+        run: supabase test db
+
+      - name: supabase stop
+        if: always()
+        run: supabase stop --no-backup
