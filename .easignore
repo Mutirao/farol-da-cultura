@@ -1,0 +1,12 @@
+# Spike F0-10: o arquivador do EAS não respeitou a reinclusão `!dist/` de
+# packages/tokens/.gitignore e omitiu packages/tokens/dist/native.ts (versionado),
+# quebrando o bundle (Unable to resolve "@farol/tokens/native"). Com .easignore,
+# o EAS ignora os .gitignore; este arquivo replica o .gitignore raiz sem `dist/`.
+node_modules/
+.turbo/
+coverage/
+*.log
+.DS_Store
+.worktrees/
+.env*
+!.env.example
