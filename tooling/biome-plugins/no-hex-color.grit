@@ -10,5 +10,6 @@ or {
     $lit <: r"(?s)(?:.*[^\w&])?#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?:[^\w].*)?"
   }
 } where {
+  not $absolute_filename <: r".*/packages/tokens/.*",
   register_diagnostic(span=$lit, message="Cor hex literal fora de packages/tokens: use um token de @farol/tokens.", severity="error")
 }
