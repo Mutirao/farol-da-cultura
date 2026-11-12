@@ -1,0 +1,32 @@
+{
+  "name": "@farol/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "files": [
+    "dist",
+    "tokens.json"
+  ],
+  "exports": {
+    ".": "./dist/native.ts",
+    "./native": "./dist/native.ts",
+    "./theme.css": "./dist/theme.css",
+    "./tokens.json": "./tokens.json"
+  },
+  "scripts": {
+    "build": "node src/generate.ts && biome format --write --vcs-use-ignore-file=false dist",
+    "lint": "biome ci --vcs-use-ignore-file=false .",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@farol/tsconfig": "workspace:*",
+    "@types/culori": "4.0.1",
+    "@types/node": "catalog:",
+    "culori": "4.0.2",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "zod": "catalog:"
+  }
+}
