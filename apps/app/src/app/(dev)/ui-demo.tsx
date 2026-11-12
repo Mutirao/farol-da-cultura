@@ -20,9 +20,14 @@ const labels = {
 export default function DemoRoute() {
   // APP_VARIANT é consumida por app.config.ts, não pelo bundle JS do Metro.
   // A identidade resolvida do config mantém o guard fechado também em links diretos.
-  if (
-    Constants.expoConfig?.ios?.bundleIdentifier !== "br.com.farol.cultura.dev"
-  ) {
+  // app.config.ts grava o mesmo id em ios.bundleIdentifier e android.package,
+  // então o guard precisa checar o campo da plataforma em execução (bug encontrado
+  // ao testar ao vivo no Android: ios.bundleIdentifier nunca é definido lá, então
+  // o guard sempre falhava e redirecionava para /agenda mesmo em desenvolvimento).
+  const resolvedIdentifier =
+    Constants.expoConfig?.ios?.bundleIdentifier ??
+    Constants.expoConfig?.android?.package;
+  if (resolvedIdentifier !== "br.com.farol.cultura.dev") {
     return <Redirect href="/agenda" />;
   }
   return <DemoContent />;
