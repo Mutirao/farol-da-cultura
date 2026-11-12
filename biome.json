@@ -12,9 +12,23 @@
     "includes": [
       "**",
       "!docs/PLANO-FASE-0-REVISADO.md",
-      "!docs/PLANO-EXECUCAO.md"
+      "!docs/PLANO-EXECUCAO.md",
+      "!.claude/hooks/tests/fixtures",
+      "!tooling/biome-plugins/fixtures",
+      "!.agents/skills",
+      "!skills-lock.json"
     ]
   },
+  "plugins": [
+    {
+      "path": "./tooling/biome-plugins/no-hex-color.grit",
+      "includes": ["**", "!packages/tokens/**"]
+    },
+    {
+      "path": "./tooling/biome-plugins/no-jsx-literal-text.grit",
+      "includes": ["apps/**"]
+    }
+  ],
   "formatter": {
     "enabled": true,
     "indentStyle": "space",

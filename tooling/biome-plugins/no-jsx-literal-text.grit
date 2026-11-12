@@ -1,0 +1,8 @@
+// Texto fixo em JSX dentro de apps/** é aviso: rótulos vêm de packages/i18n.
+// Escopo (includes) definido em biome.json.
+language js
+
+JsxText() as $text where {
+  $text <: r"(?s).*\p{L}.*",
+  register_diagnostic(span=$text, message="Texto fixo em JSX: use t() de packages/i18n.", severity="warn")
+}
