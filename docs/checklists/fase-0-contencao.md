@@ -1,7 +1,16 @@
 # Checklist de contenção — Fase 0 (F0-12, SEG-01)
 
-**Status:** documento aberto para execução humana · **Data de criação:** 12/11/2026
+**Status:** execução parcial — itens 2 a 5 (sistemas legados) desconsiderados por decisão da pessoa; itens 1, 6, 7 continuam abertos para execução humana · **Data de criação:** 12/11/2026 · **Atualizado:** 12/11/2026
 **Origem:** `docs/PLANO-FASE-0-REVISADO.md`, seção 0.9 (F0-12) e seção 13 (Lacunas de evidência).
+
+> **Decisão da pessoa, 12/11/2026:** as ações ligadas à API Node antiga e ao
+> app antigo (`farol-cultural`, `importador-idm`) — itens 2, 3, 4 e 5 abaixo —
+> ficam **desconsideradas** nesta checklist. Esses sistemas **serão
+> arquivados** posteriormente, em vez de remediados item a item. O item 1
+> (keystore público, que também afeta repositórios de terceiros fora do
+> controle direto do arquivamento) e os itens 6-7 (selos com a Secult,
+> responsáveis pela seção 13) continuam de pé e abertos para execução
+> humana.
 
 > O agente que escreveu este checklist **nunca leu nem manipulou valores de
 > segredo**. Nenhum item abaixo foi executado por um agente. Os campos
@@ -66,49 +75,35 @@ e no fork `Mutirao/farol_agenda_cultural`.
 - Evidência: _______________________
 - Assinatura: _______________________
 
-## 2. Credenciais do `importador-idm`
+## 2. Credenciais do `importador-idm` — **DESCONSIDERADO (decisão de 12/11/2026)**
 
-Contexto: `appsettings.json`, `appsettings.Development.json`,
+> Sistema será arquivado. Nenhuma rotação individual de segredo nesta checklist.
+
+Contexto original: `appsettings.json`, `appsettings.Development.json`,
 `appsettings.Production.json` e as cópias em `bin/` estão versionados com
 credenciais.
 
-- Responsável: _______________________
-- Data: _______________________
-- Evidência: _______________________
-- Assinatura: _______________________
+## 3. Chave Google Maps do `AndroidManifest` do app antigo — **DESCONSIDERADO (decisão de 12/11/2026)**
 
-## 3. Chave Google Maps do `AndroidManifest` do app antigo
+> Sistema será arquivado. Nenhuma rotação individual de segredo nesta checklist.
 
-Contexto: o `AndroidManifest` do app antigo (`farol-cultural`) contém uma
-chave Google Maps versionada. Restringir (por pacote/assinatura/IP) ou
-trocar a chave.
+Contexto original: o `AndroidManifest` do app antigo (`farol-cultural`) contém
+uma chave Google Maps versionada.
 
-- Responsável: _______________________
-- Data: _______________________
-- Evidência: _______________________
-- Assinatura: _______________________
+## 4. Segredos da API Node antiga — **DESCONSIDERADO (decisão de 12/11/2026)**
 
-## 4. Segredos da API Node antiga
+> Sistema será arquivado. Nenhuma rotação individual de segredo nesta checklist.
 
-Contexto: o repositório da API Node antiga (`resetarsenha`, `enviaremail`)
-não está acessível nesta máquina. O dono do repositório precisa confirmar
-quais segredos existem e seu estado.
+Contexto original: o repositório da API Node antiga (`resetarsenha`,
+`enviaremail`) não está acessível nesta máquina.
 
-- Responsável: _______________________
-- Data: _______________________
-- Evidência: _______________________
-- Assinatura: _______________________
+## 5. Desligar `resetarsenha` e `enviaremail` — **DESCONSIDERADO (decisão de 12/11/2026)**
 
-## 5. Desligar `resetarsenha` e `enviaremail`
+> Sistema será arquivado. O arquivamento do app/API antigos substitui o
+> desligamento item a item destes endpoints.
 
-Contexto: desligar os endpoints `resetarsenha` e `enviaremail` da API Node
-antiga. Isso faz o app antigo perder a troca de senha, então é preciso
-combinar e publicar uma mensagem avisando os usuários **antes** de desligar.
-
-- Responsável: _______________________
-- Data: _______________________
-- Evidência (inclui a mensagem combinada e o canal onde foi publicada): _______________________
-- Assinatura: _______________________
+Contexto original: desligar os endpoints `resetarsenha` e `enviaremail` da
+API Node antiga exigiria mensagem combinada avisando os usuários antes.
 
 ## 6. Confirmar os selos com a Secult
 
@@ -154,20 +149,20 @@ nomeado:
 
 ## Status geral
 
-| Item | Descrição                                            | Assinado? |
-| ---- | ---------------------------------------------------- | --------- |
-| 1.1  | Play App Signing ativo?                              | [ ]       |
-| 1.2  | Reset da upload key pedido                           | [ ]       |
-| 1.3  | Chave nunca reusada no EAS                           | [ ]       |
-| 1.4  | `Mutirao/farol_agenda_cultural` privado ou arquivado | [ ]       |
-| 1.5  | Pedido equivalente ao Instituto Dragão do Mar        | [ ]       |
-| 2    | Credenciais do `importador-idm` contidas             | [ ]       |
-| 3    | Chave Google Maps restringida ou trocada             | [ ]       |
-| 4    | Segredos da API Node antiga confirmados pelo dono    | [ ]       |
-| 5    | `resetarsenha`/`enviaremail` desligados com aviso    | [ ]       |
-| 6    | Selos confirmados com a Secult                       | [ ]       |
-| 7    | Responsáveis pela seção 13 e pelo ADR-0004 nomeados  | [ ]       |
+| Item | Descrição                                            | Assinado?                     |
+| ---- | ---------------------------------------------------- | ----------------------------- |
+| 1.1  | Play App Signing ativo?                              | [ ]                           |
+| 1.2  | Reset da upload key pedido                           | [ ]                           |
+| 1.3  | Chave nunca reusada no EAS                           | [ ]                           |
+| 1.4  | `Mutirao/farol_agenda_cultural` privado ou arquivado | [ ]                           |
+| 1.5  | Pedido equivalente ao Instituto Dragão do Mar        | [ ]                           |
+| 2    | Credenciais do `importador-idm`                      | DESCONSIDERADO (arquivamento) |
+| 3    | Chave Google Maps restringida ou trocada             | DESCONSIDERADO (arquivamento) |
+| 4    | Segredos da API Node antiga                          | DESCONSIDERADO (arquivamento) |
+| 5    | `resetarsenha`/`enviaremail` desligados com aviso    | DESCONSIDERADO (arquivamento) |
+| 6    | Selos confirmados com a Secult                       | [ ]                           |
+| 7    | Responsáveis pela seção 13 e pelo ADR-0004 nomeados  | [ ]                           |
 
-Este documento só se considera concluído quando todas as linhas acima
-estiverem marcadas e todas as assinaturas (seções 1–7) estiverem
-preenchidas por pessoas reais.
+Este documento se considera concluído quando os itens 1, 6 e 7 estiverem
+assinados por pessoas reais. Os itens 2–5 ficam formalmente desconsiderados
+pela decisão de arquivamento de 12/11/2026 e não bloqueiam o PORTÃO 0.
