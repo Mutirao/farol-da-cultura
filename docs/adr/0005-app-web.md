@@ -1,8 +1,8 @@
 # ADR-0005: App web — escopo da camada universal do Expo UI
 
-- **Status:** Proposto
-- **Data:** 2026-11-11
-- **Decisor:** _(em branco — decisão humana pendente, D13)_
+- **Status:** Aceito
+- **Data:** 2026-11-11 (decisão em 2026-11-12)
+- **Decisor:** Lucas Pirola, em sessão ativa, 12/11/2026
 - **Requisitos:** OPS-02, OPS-05, D11, D13
 
 ## Contexto
@@ -18,22 +18,20 @@ Fatos relevantes:
 
 ## Decisão
 
-**Nenhuma decisão de implementação é tomada neste ADR.** Fica registrado que:
+**D13 respondida em 12/11/2026, pelo princípio geral "manter o máximo nativo no Expo" (registrado em `AGENTS.md`):**
 
-1. Apenas a camada universal do Expo UI (`@expo/ui`) é a candidata avaliada para rodar na web nesta fase — ela é a única parte do app com import único entre plataformas hoje.
-2. `app.config.ts` (F0-07) mantém `platforms: ['ios', 'android']` na Fase 0. A inclusão de `'web'` em `platforms` é um passo futuro, condicionado à decisão humana D13 e à verificação de que `expo-router`, `NativeTabs`, a biblioteca de mapas escolhida (F0-11) e `packages/ui-native` funcionam (ou têm substituto equivalente) em `react-native-web`.
-3. O ADR permanece **Proposto** até a decisão humana D13 definir se o app ganha, de fato, um alvo web, e com qual escopo de paridade de funcionalidades.
+1. `app.config.ts` (F0-07) mantém `platforms: ['ios', 'android']` — a web **não** entra como alvo de build na Fase 0 nem é um compromisso automático de fases futuras.
+2. Se/quando um alvo web for perseguido, **só a camada universal do Expo UI** (`@expo/ui`, a mesma base de `packages/ui-native`) é candidata — nenhuma biblioteca de UI não-Expo é adotada para a web, pelo mesmo princípio de máximo nativo.
+3. Partes do app que não têm camada universal hoje (abas nativas via `NativeTabs`, a biblioteca de mapas escolhida na F0-11) não têm substituto web definido — ficam fora do escopo até surgir necessidade concreta de app web.
 
 ## Consequências
 
-- Enquanto D13 não for respondida, nenhuma tarefa da Fase 0 ou de fases seguintes assume suporte web do app como pronto; `apps/app` continua mobile-only (iOS/Android) em todas as builds (`eas.json`).
-- Se D13 decidir por suporte web usando só a camada universal do Expo UI, as demais partes do app (abas nativas, mapas) precisarão de uma estratégia própria para a web (substituto web, feature flag, ou app web reduzido) — não resolvida aqui.
-- Se D13 decidir não ter app web, este ADR pode ser encerrado como "Rejeitado" sem mudança de código, já que nenhuma implementação foi feita.
-- Precisa ser revisto quando D13 for respondida pela pessoa: atualizar Status, Decisor e Decisão com o escopo final antes de `platforms` ganhar `'web'` em `app.config.ts`.
+- `apps/app` continua mobile-only (iOS/Android) em todas as builds (`eas.json`); nenhuma mudança de escopo imediata.
+- Quando um alvo web for proposto, a avaliação já tem a resposta de princípio ("só a camada Expo UI universal, nada de terceiros"), evitando reabrir a discussão de ferramenta — mas ainda precisa de uma tarefa própria para verificar `expo-router`, `NativeTabs` e mapas em `react-native-web`.
+- Este ADR fica **Aceito** como decisão de princípio; uma tarefa de implementação futura (fora da Fase 0) abre um ADR de execução se/quando o alvo web for de fato construído.
 
 ## Alternativas consideradas
 
-- **App web completo com paridade de funcionalidades** (abas, mapa, UI): não avaliado nesta fase; custo de adaptação de cada dependência nativa é desconhecido.
-- **App web reduzido** (ex.: só telas que usam a camada universal do Expo UI, sem mapa/abas nativas): candidato mais barato, mas ainda não especificado.
-- **Sem app web nesta fase** (status quo, `platforms: ['ios', 'android']`): opção atual de fato, mantida até D13 decidir o contrário.
-- Nenhuma foi escolhida: a decisão depende de D13.
+- **Só a camada universal do Expo UI, platforms mobile-only por ora** (ESCOLHIDA): consistente com "máximo nativo no Expo"; não compromete esforço de implementação agora.
+- **App web completo com paridade de funcionalidades**: rejeitada por depender de bibliotecas não avaliadas (mapas, abas nativas) fora do ecossistema Expo puro.
+- **App web reduzido via Expo UI, sem mapa/abas nativas**: não rejeitada em definitivo, mas sem tarefa aberta — é o caminho mais provável se um alvo web for perseguido no futuro, dado o princípio aceito.
