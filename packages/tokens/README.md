@@ -41,16 +41,16 @@ Razão WCAG 2.x: cada canal sRGB `c` (0–1) é linearizado como
 `L = 0.2126 R + 0.7152 G + 0.0722 B`; a razão é `(L_clara + 0.05) / (L_escura + 0.05)`.
 Os testes recalculam com a `culori` (`wcagContrast`), tolerância ±0,01. Fundo escuro = `#0A0A0A`.
 
-| Par | Razão | Uso permitido |
-| --- | ---: | --- |
-| `#008EA3` / `#FFFFFF` | 3,89 | só gráfico no claro (texto usa `teal.700`) |
-| `#008EA3` / `#0A0A0A` | 5,09 | texto e gráfico no escuro |
-| `#EA5B0C` / `#FFFFFF` | 3,50 | só gráfico no claro (texto usa `orange.700`) |
-| `#EA5B0C` / `#0A0A0A` | 5,66 | texto e gráfico no escuro |
-| `#FFFFFF` / `#007585` | 5,41 | `primary-foreground` sobre `primary` (claro) |
-| `#616161` / `#F5F5F5` | 5,68 | `muted-foreground` sobre `muted` (claro) |
-| `#B3470A` / `#FFFFFF` | 5,49 | `highlight` (texto laranja, claro) |
-| `#999999` / `#FFFFFF` | 2,85 | nunca texto: só `disabled`/decorativo |
+| Par                   | Razão | Uso permitido                                |
+| --------------------- | ----: | -------------------------------------------- |
+| `#008EA3` / `#FFFFFF` |  3,89 | só gráfico no claro (texto usa `teal.700`)   |
+| `#008EA3` / `#0A0A0A` |  5,09 | texto e gráfico no escuro                    |
+| `#EA5B0C` / `#FFFFFF` |  3,50 | só gráfico no claro (texto usa `orange.700`) |
+| `#EA5B0C` / `#0A0A0A` |  5,66 | texto e gráfico no escuro                    |
+| `#FFFFFF` / `#007585` |  5,41 | `primary-foreground` sobre `primary` (claro) |
+| `#616161` / `#F5F5F5` |  5,68 | `muted-foreground` sobre `muted` (claro)     |
+| `#B3470A` / `#FFFFFF` |  5,49 | `highlight` (texto laranja, claro)           |
+| `#999999` / `#FFFFFF` |  2,85 | nunca texto: só `disabled`/decorativo        |
 
 ## Verificação
 
