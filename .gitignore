@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.turbo/
+coverage/
+*.log
+.DS_Store
+
+# Segredos (SEG-01): nenhum .env entra no repositório, exceto o modelo.
+.env*
+!.env.example
