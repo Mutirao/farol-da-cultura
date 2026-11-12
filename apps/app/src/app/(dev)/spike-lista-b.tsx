@@ -1,15 +1,12 @@
 // Spike F0-10, variante B: FlashList 2.3.2.
 import { FlashList, type ListRenderItem } from "@shopify/flash-list";
-import { Redirect } from "expo-router";
 import { View } from "react-native";
-import { isSpikeVariant } from "@/spike/devGuard";
 import { FAKE_CARDS, type FakeCard, fakeCardKey } from "@/spike/fakeCards";
 import { SpikeCard } from "@/spike/SpikeCard";
 
+// Guard de variante removido temporariamente para facilitar o teste manual
+// (pedido do usuário, 12/11/2026) -- branch spike/lista não é mergeado.
 export default function SpikeListaBRoute() {
-  if (!isSpikeVariant()) {
-    return <Redirect href="/agenda" />;
-  }
   return <SpikeListaB />;
 }
 
