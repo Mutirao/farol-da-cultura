@@ -1,0 +1,2 @@
+# dist/ é versionado aqui (verificação de drift no VERIFY).
+!dist/
