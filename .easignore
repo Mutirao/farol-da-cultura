@@ -1,0 +1,22 @@
+# O arquivador do EAS Build não respeita a reinclusão `!dist/` dos
+# .gitignore aninhados (ex.: packages/tokens/.gitignore reinclui dist/,
+# que o .gitignore raiz ignora de forma geral) -- ele omitia
+# packages/tokens/dist/native.ts (versionado) do archive, quebrando o
+# bundle em builds `preview`/`production` ("Unable to resolve module
+# '@farol/tokens/native'"). Builds `development` não eram afetados
+# porque o JS vem do Metro ao vivo, não do archive.
+#
+# Descoberto na F0-10 (spike de lista), verificado de forma independente
+# com `eas build:inspect -p android -s archive -e preview -o <dir>` a
+# partir do checkout principal (sem nenhum worktree envolvido).
+#
+# .easignore faz o EAS ignorar os .gitignore do projeto inteiro -- este
+# arquivo replica o .gitignore raiz, só sem a linha `dist/`.
+node_modules/
+.turbo/
+coverage/
+*.log
+.DS_Store
+.worktrees/
+.env*
+!.env.example
