@@ -37,10 +37,29 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["@expo/ui*", "@expo/ui*/**"],
+                "message": "Importe de @farol/ui-native; @expo/ui é interno ao pacote."
+              }
+            ]
+          }
+        }
+      }
     }
   },
   "assist": {
     "enabled": true
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/ui-native/**"],
+      "linter": { "rules": { "style": { "noRestrictedImports": "off" } } }
+    }
+  ]
 }
