@@ -51,7 +51,7 @@ export async function buscarAgenda(
   url: string | undefined,
   chavePublica: string | undefined,
   signal: AbortSignal,
-  buscar = fetch,
+  buscar: (url: string, opcoes: RequestInit) => Promise<Response> = fetch,
 ): Promise<Evento[]> {
   if (!url || !chavePublica) throw new Error("configuracao");
   const eventos: Evento[] = [];
