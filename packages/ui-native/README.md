@@ -2,14 +2,17 @@
 
 Wrappers móveis finos para o universal `@expo/ui` 58.0.28:
 
-| API Farol   | Universal Expo                  |
-| ----------- | ------------------------------- |
-| Button      | Button                          |
-| Toggle      | Switch                          |
-| ListSection | FieldGroup + FieldGroup.Section |
-| Sheet       | BottomSheet                     |
+| API Farol   | Universal Expo                   |
+| ----------- | -------------------------------- |
+| Button      | Button                           |
+| Toggle      | Switch                           |
+| ListSection | FieldGroup + FieldGroup.Section  |
+| Sheet       | BottomSheet                      |
+| SearchField | TextInput + estado nativo        |
+| Select      | Picker                           |
+| Collection  | List + List.ForEach + RNHostView |
 
-Os quatro exigem `accessibilityLabel: string` no TypeScript. Não há escape
+Todos exigem `accessibilityLabel: string` no TypeScript. Não há escape
 `modifiers` público que possa sobrescrever os rótulos. `ListSection` usa esse
 rótulo como título nativo da seção, preservando cada controle filho. `Sheet`
 usa um cabeçalho React Native acessível e mantém os filhos navegáveis (o
@@ -24,6 +27,17 @@ no Android gera a paleta Material 3. Não há cores literais nos wrappers.
 `ListSection` contém seu próprio FieldGroup rolável; não o coloque em outro
 FieldGroup. Conteúdo React Native do Sheet não herda tint: crie outro
 `NativeUIProvider` se usar Button/Toggle dentro dele.
+
+`NativeUIProvider.matchContents` também aceita `{ vertical: true }` para medir
+controles sem perder a largura disponível. `SearchField` não ecoa cada tecla de
+volta ao nativo; só sincroniza mudanças externas (como limpar a busca).
+`Collection` é a lista universal provisória da demonstração: o ADR-0002 e sua
+medição em release seguem pendentes. Não há benchmark aprovado nesta entrega.
+
+No dev build Android testado, Host dentro de uma janela nativa de Sheet causou
+`RootViewUtil.getRootView` ao tocar nos seletores. Por isso os filtros da agenda
+ficam na própria tela, não dentro de Sheet. A demo antiga continua pendente de
+validação; este pacote não promete corrigir a limitação nativa do SDK.
 
 ## Exceção por plataforma: prop ausente
 

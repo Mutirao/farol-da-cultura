@@ -4,6 +4,10 @@
 
 **Lugar deste plano:** a Fase 0 fica registrada em [`PLANO-FASE-0-REVISADO.md`](./PLANO-FASE-0-REVISADO.md) e foi aprovada, com pendências, em [`relatorios/portao-0.md`](./relatorios/portao-0.md). Este plano toma o lugar do roteiro das Fases 1 a 4 (dados, app, painel), que nunca entrou neste repositório: [`PLANO-EXECUCAO.md`](./PLANO-EXECUCAO.md) é um stub.
 
+**Andamento, 13/11/2026:** demonstração Android com dados reais, busca/filtros,
+detalhes e favoritos em [`relatorios/app-mobile-android.md`](./relatorios/app-mobile-android.md).
+Mapa embutido e medições F0-10/F0-11 continuam pendentes; a demonstração não é aceite de publicação.
+
 ## 1. Objetivo
 
 Colocar o app novo (`apps/app`, Expo SDK 58) no lugar do app existente nas lojas, com o núcleo do que ele faz hoje: ver a agenda, achar no mapa e guardar favoritos. O que não serve a isso sai do plano.

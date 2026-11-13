@@ -7,7 +7,7 @@ export function NativeUIProvider({
   matchContents = false,
 }: {
   children: ReactNode;
-  matchContents?: boolean;
+  matchContents?: boolean | { vertical?: boolean; horizontal?: boolean };
 }) {
   const mode = useColorScheme() === "dark" ? "dark" : "light";
   return (
