@@ -1,0 +1,49 @@
+name: Coleta
+
+# Importa a agenda do Mapa Cultural do Ceará para o Supabase (M7).
+# Chega desligada: o job só roda depois que uma pessoa definir a variável de repositório
+# COLETA_ATIVA=true e configurar o ambiente "coleta". Ver workers/coleta/README.md.
+
+on:
+  schedule:
+    - cron: "17 8 * * *" # 05h17 em Fortaleza
+  workflow_dispatch:
+    inputs:
+      permitir_remocao_em_massa:
+        description: "Aceitar que mais da metade das datas da janela suma (só depois de conferir a fonte)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coleta
+  cancel-in-progress: false
+
+jobs:
+  importar:
+    name: importar
+    if: vars.COLETA_ATIVA == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: coleta
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      PERMITIR_REMOCAO_EM_MASSA: ${{ inputs.permitir_remocao_em_massa }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1 (versão vem de packageManager)
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @farol/coleta importar

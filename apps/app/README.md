@@ -1,7 +1,9 @@
-# Farol da Cultura — app (F0-07)
+# Farol da Cultura — app mobile
 
-Base Expo SDK 58, somente Android e iOS. Quatro abas nativas vazias: Agenda,
-Mapa, Favoritos e Conta. Os rótulos vêm de `@farol/i18n` (i18next,
+Base Expo SDK 58, somente Android e iOS. Agenda com busca e filtros, detalhes de
+eventos e espaços, favoritos locais, locais abertos no app de mapas e Conta com
+termos, privacidade e Sobre. Ainda não tem mapa embutido, login ou notificações.
+Os textos vêm de `@farol/i18n` (i18next,
 expo-localization, fallback pt-BR); o tint vem de `@farol/tokens/native`,
 exportado de `packages/tokens/dist/native.ts`.
 
@@ -16,6 +18,30 @@ npx expo-doctor
 npx expo export --platform android --platform ios
 pnpm typecheck
 ```
+
+### Agenda e dados locais
+
+Suba o Supabase local (`pnpm supabase start` na raiz). Em `apps/app/.env.local`
+(ignorado pelo git), configure `EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321`
+e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` com a chave **pública** do projeto local.
+Nunca use chave secreta ou `service_role` no app.
+
+Para acessar o Metro e a API pelo USB:
+
+```sh
+adb reverse tcp:8081 tcp:8081
+adb reverse tcp:54321 tcp:54321
+APP_VARIANT=development npx expo start --dev-client --port 8081
+```
+
+Refaça os redirecionamentos se desconectar/reconectar o cabo. Os dados fictícios
+vêm do seed; a importação de dados reais é descrita em `workers/coleta/README.md`.
+Os favoritos usam um arquivo privado do app; só substituem a versão anterior
+após completar a gravação. Não migram favoritos nem contas do app antigo.
+
+`pnpm test` testa filtros, fuso, validação HTTP e persistência local com mocks.
+Não substitui teste de componentes no aparelho. Evidência e limites da entrega:
+[`docs/relatorios/app-mobile-android.md`](../../docs/relatorios/app-mobile-android.md).
 
 Dependências nativas devem ser instaladas com `npx expo install <pacote> --pnpm`.
 O template foi criado com `default@sdk-58 --no-agents-md --no-install`; a flag
