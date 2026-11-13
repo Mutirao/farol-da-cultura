@@ -10,6 +10,26 @@ export const resources = {
         favoritos: "Favoritos",
         conta: "Conta",
       },
+      // Rótulo visível e, em "...Acao", o que o leitor de tela anuncia.
+      conta: {
+        secao: "Informações",
+        termos: "Termos de Uso",
+        termosAcao: "Abrir os Termos de Uso no navegador",
+        privacidade: "Política de Privacidade",
+        privacidadeAcao: "Abrir a Política de Privacidade no navegador",
+        sobre: "Sobre o app",
+        sobreAcao: "Abrir a tela Sobre o app",
+      },
+      sobre: {
+        titulo: "Sobre o app",
+        nome: "Farol da Cultura",
+        versao: "Versão {{versao}}",
+        descricao:
+          "O Farol da Cultura reúne a agenda de eventos culturais do Ceará.",
+        fonte:
+          "A programação vem do Mapa Cultural do Ceará, da Secretaria da Cultura do Estado.",
+        licenca: "É software livre, sob a licença AGPL-3.0.",
+      },
     },
   },
 } as const;
@@ -24,7 +44,12 @@ i18n.init({
   initAsync: false,
   interpolation: { escapeValue: false },
 });
-export const t = (
-  key: `tabs.${keyof (typeof resources)["pt-BR"]["translation"]["tabs"]}`,
-) => i18n.t(key);
+type Textos = (typeof resources)["pt-BR"]["translation"];
+// Todas as chaves "grupo.texto" que existem em resources.
+type Chave = {
+  [Grupo in keyof Textos]: `${Grupo}.${keyof Textos[Grupo] & string}`;
+}[keyof Textos];
+
+export const t = (key: Chave, valores?: Record<string, string>) =>
+  i18n.t(key, { ...valores });
 export default i18n;

@@ -1,7 +1,8 @@
 # Farol da Cultura — app (F0-07)
 
-Base Expo SDK 58, somente Android e iOS. Quatro abas nativas vazias: Agenda,
-Mapa, Favoritos e Conta. Os rótulos vêm de `@farol/i18n` (i18next,
+Base Expo SDK 58, somente Android e iOS. Quatro abas nativas: Agenda, Mapa e
+Favoritos ainda vazias; Conta abre os Termos de Uso, a Política de Privacidade
+e a tela Sobre (`src/app/sobre.tsx`). Os textos vêm de `@farol/i18n` (i18next,
 expo-localization, fallback pt-BR); o tint vem de `@farol/tokens/native`,
 exportado de `packages/tokens/dist/native.ts`.
 
