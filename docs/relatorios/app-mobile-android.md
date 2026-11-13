@@ -76,8 +76,11 @@ Evidências: [agenda](../evidencias/app-mobile/agenda.png),
 - Medição de lista F0-10/ADR-0002 e de mapa F0-11/ADR-0003: seguem abertas.
   A lista universal é provisória, não uma escolha aprovada por benchmark.
 - Ativação da importação agendada, permissão de uso dos dados, Supabase de produção e publicação nas lojas.
-- O `expo install --check` já reclamava dos patches novos de Expo/dev-client antes desta entrega.
-  Não foram alteradas versões do SDK nem suas exceções de instalação aqui.
+- A demonstração acima usou Expo 58.0.24/dev-client 58.0.19. Na preparação do merge,
+  após autorização da pessoa, os patches passaram a Expo 58.0.25/dev-client 58.0.20
+  (e launcher transitivo 58.0.20). As exceções do pnpm continuam por versão exata,
+  sem ampliar faixas. `expo install --check`, Expo Doctor (20/20) e export Android/iOS
+  passaram novamente. Esses patches não foram reconstruídos/testados em aparelho nesta etapa.
 
 O Metro e a API local precisam permanecer ativos para esta demonstração pelo USB.
 Não há suporte offline completo: os favoritos persistem, mas a programação é carregada da API.
