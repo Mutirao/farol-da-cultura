@@ -354,6 +354,25 @@ importers:
         specifier: 'catalog:'
         version: 5.1.0(@types/node@26.6.6)(vite@8.3.8(@types/node@26.6.6)(terser@5.51.2))
 
+  workers/coleta:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
+    devDependencies:
+      '@farol/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.6
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@types/node@26.6.6)(vite@8.3.8(@types/node@26.6.6)(terser@5.51.2))
+
 packages:
 
   2g@1.0.1:

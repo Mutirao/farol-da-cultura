@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - apps/*
+  - workers/*
 
 # Versões compartilhadas (V14: TypeScript ~6.0.3, fixado pelo Expo SDK 58).
 catalog:
