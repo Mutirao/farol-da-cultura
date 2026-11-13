@@ -1,7 +1,8 @@
 # Farol da Cultura
 
 Monorepo do Farol da Cultura: app de agenda cultural e seus pacotes compartilhados.
-Fase atual: Fase 0 (fundação). Plano: [`docs/PLANO-FASE-0-REVISADO.md`](docs/PLANO-FASE-0-REVISADO.md).
+Fase atual: app mobile, v1. Plano: [`docs/PLANO-APP-MOBILE.md`](docs/PLANO-APP-MOBILE.md).
+A Fase 0 (fundação) está registrada em [`docs/PLANO-FASE-0-REVISADO.md`](docs/PLANO-FASE-0-REVISADO.md).
 
 ## Requisitos
 
