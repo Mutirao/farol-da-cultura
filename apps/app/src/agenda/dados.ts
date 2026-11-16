@@ -40,6 +40,23 @@ export const EventoSchema = z.object({
 export type Evento = z.infer<typeof EventoSchema>;
 export type DataEvento = Evento["datas"][number];
 export type Espaco = z.infer<typeof EspacoSchema>;
+
+const urlBaseGoogleMaps = "https://www.google.com/maps/search/?api=1&query=";
+export function urlMapa(espaco: Espaco) {
+  return espaco.latitude !== null && espaco.longitude !== null
+    ? `${urlBaseGoogleMaps}${espaco.latitude},${espaco.longitude}`
+    : null;
+}
+export function urlComoChegar(espaco: Espaco) {
+  if (espaco.latitude !== null && espaco.longitude !== null)
+    return `${urlBaseGoogleMaps}${espaco.latitude},${espaco.longitude}`;
+  const endereco = [espaco.endereco, espaco.municipio]
+    .filter(Boolean)
+    .join(", ");
+  return endereco
+    ? `${urlBaseGoogleMaps}${encodeURIComponent(endereco)}`
+    : null;
+}
 export const chaveEvento = (evento: Evento) =>
   `${evento.fonte}:${evento.id_externo}`;
 

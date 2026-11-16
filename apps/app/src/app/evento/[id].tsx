@@ -10,7 +10,7 @@ import {
   formatarData,
   formatarDataLonga,
 } from "../../agenda/dados";
-import { abrirPagina } from "../../agenda/links";
+import { abrirComoChegar, abrirPagina } from "../../agenda/links";
 import { Acao, EstadoAgenda, Paragrafo, useCores } from "../../agenda/ui";
 
 export default function DetalheEvento() {
@@ -54,6 +54,7 @@ export default function DetalheEvento() {
       ? `https://mapacultural.secult.ce.gov.br/evento/${evento.id_externo}/`
       : null;
   const primeiraData = datas[0];
+  const espacoPrincipal = primeiraData?.espaco ?? null;
   const convite = mensagemConvite(t("detalhe.compartilharChamada"), [
     primeiraData
       ? t("detalhe.compartilharQuando", {
@@ -169,6 +170,12 @@ export default function DetalheEvento() {
                   valor: evento.classificacao_etaria,
                 })}
               </Paragrafo>
+            ) : null}
+            {espacoPrincipal ? (
+              <Acao
+                label={t("detalhe.comoChegar", { nome: espacoPrincipal.nome })}
+                onPress={() => void abrirComoChegar(espacoPrincipal)}
+              />
             ) : null}
           </View>
         ) : (

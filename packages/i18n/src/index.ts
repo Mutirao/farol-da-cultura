@@ -70,6 +70,7 @@ export const resources = {
         semDatas: "Sem novas datas na programação atual.",
         voltar: "Voltar à agenda",
         mapa: "Abrir localização no mapa",
+        comoChegar: "Como chegar até {{nome}}",
         semCoordenadas:
           "A organização não informou a localização deste espaço.",
         semRecursos: "Recursos de acessibilidade não informados",
