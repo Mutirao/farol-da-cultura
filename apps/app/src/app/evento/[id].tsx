@@ -5,7 +5,11 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, ScrollView, Share, Text, View } from "react-native";
 import { useAgenda } from "../../agenda/AgendaProvider";
 import { mensagemConvite } from "../../agenda/convite";
-import { chaveEvento, formatarData } from "../../agenda/dados";
+import {
+  chaveEvento,
+  formatarData,
+  formatarDataLonga,
+} from "../../agenda/dados";
 import { abrirPagina } from "../../agenda/links";
 import { Acao, EstadoAgenda, Paragrafo, useCores } from "../../agenda/ui";
 
@@ -110,11 +114,72 @@ export default function DetalheEvento() {
         <Text style={{ color: cores.primary, fontSize: 16 }}>
           {evento.categorias.map((c) => c.categorias.nome).join(" · ")}
         </Text>
-        <Paragrafo>
-          {evento.classificacao_etaria
-            ? t("detalhe.classificacao", { valor: evento.classificacao_etaria })
-            : t("detalhe.semClassificacao")}
-        </Paragrafo>
+        {primeiraData ? (
+          <View
+            accessible
+            accessibilityLabel={[
+              formatarDataLonga(primeiraData.inicio),
+              primeiraData.gratuito === true
+                ? t("agenda.gratuito")
+                : (primeiraData.preco ?? t("detalhe.semPreco")),
+              primeiraData.espaco?.nome ?? t("detalhe.semEspaco"),
+              evento.classificacao_etaria
+                ? t("detalhe.classificacao", {
+                    valor: evento.classificacao_etaria,
+                  })
+                : "",
+            ]
+              .filter(Boolean)
+              .join(", ")}
+            style={{
+              padding: spacing["3"],
+              gap: spacing["2"],
+              backgroundColor: cores.muted,
+              borderRadius: radius.md,
+            }}
+          >
+            <Text
+              accessibilityRole="header"
+              style={{
+                color: cores.highlight,
+                fontSize: 19,
+                fontWeight: "700",
+              }}
+            >
+              {formatarDataLonga(primeiraData.inicio)}
+            </Text>
+            {primeiraData.fim ? (
+              <Paragrafo>
+                {t("detalhe.fim", { data: formatarData(primeiraData.fim) })}
+              </Paragrafo>
+            ) : null}
+            <Paragrafo>
+              {primeiraData.gratuito === true
+                ? t("agenda.gratuito")
+                : (primeiraData.preco ?? t("detalhe.semPreco"))}
+            </Paragrafo>
+            <Paragrafo>
+              {[primeiraData.espaco?.nome, primeiraData.espaco?.municipio]
+                .filter(Boolean)
+                .join(" · ") || t("detalhe.semEspaco")}
+            </Paragrafo>
+            {evento.classificacao_etaria ? (
+              <Paragrafo>
+                {t("detalhe.classificacao", {
+                  valor: evento.classificacao_etaria,
+                })}
+              </Paragrafo>
+            ) : null}
+          </View>
+        ) : (
+          <Paragrafo>
+            {evento.classificacao_etaria
+              ? t("detalhe.classificacao", {
+                  valor: evento.classificacao_etaria,
+                })
+              : t("detalhe.semClassificacao")}
+          </Paragrafo>
+        )}
         <Acao
           label={salvo ? t("detalhe.desfavoritar") : t("detalhe.favoritar")}
           disabled={!favoritosProntos || salvando}

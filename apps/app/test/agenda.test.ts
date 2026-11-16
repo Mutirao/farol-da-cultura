@@ -8,6 +8,8 @@ import {
   FavoritosSchema,
   filtrar,
   filtrosIniciais,
+  formatarData,
+  formatarDataLonga,
   limitesPeriodo,
 } from "../src/agenda/dados";
 
@@ -260,4 +262,16 @@ describe("favoritos", () => {
       expect(FavoritosSchema.safeParse(dados).success).toBe(false);
     },
   );
+});
+
+describe("formatação de data", () => {
+  // 2030-01-10 é uma quinta-feira, em UTC-3 (Fortaleza sem horário de verão).
+  it("data longa traz dia da semana, dia, mês e horário", () => {
+    expect(formatarDataLonga("2030-01-10T22:00:00Z")).toBe(
+      "qui., 10 de jan., 19:00",
+    );
+  });
+  it("data curta mantém o formato dos cartões", () => {
+    expect(formatarData("2030-01-10T22:00:00Z")).toContain("19:00");
+  });
 });

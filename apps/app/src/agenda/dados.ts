@@ -172,6 +172,17 @@ export function filtrar(
     .map(({ evento }) => evento);
 }
 
+const dataLonga = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "America/Fortaleza",
+  weekday: "short",
+  day: "2-digit",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+export const formatarDataLonga = (iso: string) =>
+  dataLonga.format(new Date(iso));
+
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "America/Fortaleza",
   day: "2-digit",
