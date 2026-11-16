@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, ScrollView, Share, Text, View } from "react-native";
 import { useAgenda } from "../../agenda/AgendaProvider";
+import { mensagemConvite } from "../../agenda/convite";
 import { chaveEvento, formatarData } from "../../agenda/dados";
 import { abrirPagina } from "../../agenda/links";
 import { Acao, EstadoAgenda, Paragrafo, useCores } from "../../agenda/ui";
@@ -48,17 +49,30 @@ export default function DetalheEvento() {
     evento.fonte === "mapa-cultural-ce" && /^\d+$/.test(evento.id_externo)
       ? `https://mapacultural.secult.ce.gov.br/evento/${evento.id_externo}/`
       : null;
+  const primeiraData = datas[0];
+  const convite = mensagemConvite(t("detalhe.compartilharChamada"), [
+    primeiraData
+      ? t("detalhe.compartilharQuando", {
+          quando: formatarData(primeiraData.inicio),
+          nome: evento.nome,
+        })
+      : evento.nome,
+    primeiraData?.espaco
+      ? t("detalhe.compartilharLocal", { local: primeiraData.espaco.nome })
+      : null,
+    primeiraData
+      ? t("detalhe.compartilharIngresso", {
+          ingresso:
+            primeiraData.gratuito === true
+              ? t("agenda.gratuito")
+              : (primeiraData.preco ?? t("detalhe.semPreco")),
+        })
+      : null,
+    urlFonte,
+  ]);
   async function compartilhar() {
     try {
-      await Share.share({
-        message: [
-          evento!.nome,
-          ...datas.slice(0, 1).map((d) => formatarData(d.inicio)),
-          urlFonte,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-      });
+      await Share.share({ message: convite });
     } catch {
       Alert.alert(t("detalhe.compartilhar"), t("detalhe.falhaLink"));
     }

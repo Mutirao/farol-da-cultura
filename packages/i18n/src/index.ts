@@ -59,6 +59,10 @@ export const resources = {
         favoritar: "Salvar nos favoritos",
         desfavoritar: "Remover dos favoritos",
         compartilhar: "Compartilhar evento",
+        compartilharChamada: "Bora? Olha esse evento:",
+        compartilharQuando: "{{quando}} — {{nome}}",
+        compartilharLocal: "Local: {{local}}",
+        compartilharIngresso: "Ingresso: {{ingresso}}",
         fonte: "Ver na fonte original",
         abrirEspaco: "Conhecer {{nome}}",
         naoEncontrado:
