@@ -1,7 +1,9 @@
 import { t } from "@farol/i18n";
 import { spacing } from "@farol/tokens/native";
 import { NativeUIProvider, SearchField, Select } from "@farol/ui-native";
+import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
+
 import {
   Keyboard,
   ScrollView,
@@ -10,7 +12,12 @@ import {
   View,
 } from "react-native";
 import { useAgenda } from "../../agenda/AgendaProvider";
-import { type Filtros, filtrar, filtrosIniciais } from "../../agenda/dados";
+import {
+  type Filtros,
+  filtrar,
+  filtrosDeParametros,
+  filtrosIniciais,
+} from "../../agenda/dados";
 import { type Coordenada, ordenarPorPerto } from "../../agenda/distancia";
 import {
   localizacaoConhecida,
@@ -28,12 +35,20 @@ export default function Agenda() {
   const { eventos, carregando, erro } = useAgenda();
   const cores = useCores();
   const { height } = useWindowDimensions();
-  const [filtros, setFiltros] = useState(filtrosIniciais);
+  // Parâmetros vindos dos chips da home: aplicados só na montagem.
+  const params = useLocalSearchParams<{
+    periodo?: string;
+    ingresso?: string;
+    ordem?: string;
+  }>();
+  const [filtros, setFiltros] = useState<Filtros>(() =>
+    filtrosDeParametros({ periodo: params.periodo, ingresso: params.ingresso }),
+  );
   const [aberto, setAberto] = useState(false);
   const [origem, setOrigem] = useState<Coordenada | null>(
     localizacaoConhecida(),
   );
-  const [perto, setPerto] = useState(false);
+  const [perto, setPerto] = useState(params.ordem === "perto");
   const filtrados = useMemo(
     () => filtrar(eventos, filtros),
     [eventos, filtros],
@@ -83,6 +98,7 @@ export default function Agenda() {
         { value: "hoje", label: t("agenda.hoje") },
         { value: "amanha", label: t("agenda.amanha") },
         { value: "semana", label: t("agenda.semana") },
+        { value: "fimdesemana", label: t("agenda.fimDeSemana") },
         { value: "mes", label: t("agenda.mes") },
       ],
     },

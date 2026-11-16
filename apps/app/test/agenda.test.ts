@@ -7,10 +7,12 @@ import {
   EventoSchema,
   FavoritosSchema,
   filtrar,
+  filtrosDeParametros,
   filtrosIniciais,
   formatarData,
   formatarDataLonga,
   limitesPeriodo,
+  proximosFavoritos,
 } from "../src/agenda/dados";
 
 const AGORA = new Date("2030-01-10T20:00:00Z");
@@ -262,6 +264,102 @@ describe("favoritos", () => {
       expect(FavoritosSchema.safeParse(dados).success).toBe(false);
     },
   );
+});
+
+describe("fim de semana", () => {
+  // 2030-01-10 é quinta; 2030-01-12 é sábado, 2030-01-14 é segunda.
+  it("na quinta, começa no sábado seguinte e vai até segunda", () => {
+    const [de, ate] = limitesPeriodo("fimdesemana", AGORA);
+    expect(new Date(de).toISOString()).toBe("2030-01-12T03:00:00.000Z");
+    expect(new Date(ate).toISOString()).toBe("2030-01-14T03:00:00.000Z");
+  });
+  it("no sábado, começa hoje", () => {
+    const sabado = new Date("2030-01-12T10:00:00Z");
+    const [de] = limitesPeriodo("fimdesemana", sabado);
+    expect(new Date(de).toISOString()).toBe("2030-01-12T03:00:00.000Z");
+  });
+  it("no domingo, aponta para o fim de semana seguinte", () => {
+    const domingo = new Date("2030-01-13T10:00:00Z");
+    const [de] = limitesPeriodo("fimdesemana", domingo);
+    expect(new Date(de).toISOString()).toBe("2030-01-19T03:00:00.000Z");
+  });
+});
+
+describe("filtros de parâmetros de rota", () => {
+  it("aplica período e ingresso válidos", () => {
+    expect(
+      filtrosDeParametros({ periodo: "fimdesemana", ingresso: "gratuito" }),
+    ).toEqual({
+      ...filtrosIniciais,
+      periodo: "fimdesemana",
+      ingresso: "gratuito",
+    });
+  });
+  it("ignora valores fora do domínio", () => {
+    expect(filtrosDeParametros({ periodo: "ontem", ingresso: "vip" })).toEqual(
+      filtrosIniciais,
+    );
+    expect(filtrosDeParametros({})).toEqual(filtrosIniciais);
+  });
+});
+
+describe("próximos favoritos", () => {
+  const depois: Evento = {
+    ...evento,
+    id: 2,
+    id_externo: "2",
+    nome: "Sarau na segunda",
+    datas: [
+      {
+        id: 3,
+        inicio: "2030-01-14T20:00:00Z",
+        fim: null,
+        preco: "Gratuito",
+        gratuito: true,
+        espaco,
+      },
+    ],
+  };
+  const soPassado: Evento = {
+    ...evento,
+    id: 3,
+    id_externo: "3",
+    nome: "Evento encerrado",
+    datas: [
+      {
+        id: 4,
+        inicio: "2030-01-01T20:00:00Z",
+        fim: null,
+        preco: "Gratuito",
+        gratuito: true,
+        espaco,
+      },
+    ],
+  };
+  it("ordena pelo início mais próximo, do favorito salvo depois primeiro", () => {
+    const favoritos = [chaveEvento(depois), chaveEvento(evento)];
+    expect(
+      proximosFavoritos([depois, evento], favoritos, 3, AGORA).map(
+        (e) => e.nome,
+      ),
+    ).toEqual(["Forró na Praça", "Sarau na segunda"]);
+  });
+  it("respeita o limite", () => {
+    const favoritos = [chaveEvento(depois), chaveEvento(evento)];
+    expect(
+      proximosFavoritos([depois, evento], favoritos, 1, AGORA).map(
+        (e) => e.nome,
+      ),
+    ).toEqual(["Forró na Praça"]);
+  });
+  it("exclui favorito sem data futura", () => {
+    const favoritos = [chaveEvento(soPassado), chaveEvento(evento)];
+    expect(
+      proximosFavoritos([soPassado, evento], favoritos, 3, AGORA).map(
+        (e) => e.nome,
+      ),
+    ).toEqual(["Forró na Praça"]);
+  });
 });
 
 describe("formatação de data", () => {

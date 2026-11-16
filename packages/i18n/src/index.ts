@@ -4,6 +4,19 @@ import i18next from "i18next";
 export const resources = {
   "pt-BR": {
     translation: {
+      home: {
+        titulo: "Guia cultural de Fortaleza",
+        subtitulo: "Descubra e participe da vida cultural da cidade",
+        chipsTitulo: "Explorar por",
+        hoje: "Hoje",
+        fimDeSemana: "Fim de semana",
+        gratis: "Grátis",
+        perto: "Perto de mim",
+        naSuaAgenda: "Na sua agenda",
+        semFavoritos:
+          "Salve eventos nos favoritos para montar sua agenda aqui.",
+        verAgenda: "Ver agenda completa",
+      },
       tabs: {
         agenda: "Agenda",
         mapa: "Mapa",
@@ -17,6 +30,7 @@ export const resources = {
         filtros: "Filtrar programação",
         ordenarPerto: "Ordenar: mais perto",
         ordemData: "Ordenar: data",
+        fimDeSemana: "Fim de semana",
         limpar: "Limpar filtros",
         verResultados: "Ver resultados",
         periodo: "Período",

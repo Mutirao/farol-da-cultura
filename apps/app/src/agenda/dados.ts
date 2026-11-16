@@ -133,7 +133,61 @@ export function limitesPeriodo(periodo: string, agora: Date): [number, number] {
   if (periodo === "amanha") return [hoje + dia, hoje + 2 * dia];
   if (periodo === "semana") return [hoje, hoje + 7 * dia];
   if (periodo === "mes") return [hoje, hoje + 30 * dia];
+  if (periodo === "fimdesemana") {
+    // Próximo sábado 00h (hoje, se já for sábado) até segunda 00h, hora local.
+    const dow = new Date(hoje).getUTCDay();
+    const inicio = hoje + ((6 - dow + 7) % 7) * dia;
+    return [inicio, inicio + 2 * dia];
+  }
   return [hoje, Number.POSITIVE_INFINITY];
+}
+
+const periodosValidos = [
+  "proximos",
+  "hoje",
+  "amanha",
+  "semana",
+  "mes",
+  "fimdesemana",
+];
+const ingressosValidos = ["", "gratuito", "pago"];
+
+/** Monta filtros a partir de parâmetros de rota, ignorando valores inválidos. */
+export function filtrosDeParametros(parametros: {
+  periodo?: string;
+  ingresso?: string;
+}): Filtros {
+  return {
+    ...filtrosIniciais,
+    periodo: periodosValidos.includes(parametros.periodo ?? "")
+      ? (parametros.periodo as string)
+      : filtrosIniciais.periodo,
+    ingresso: ingressosValidos.includes(parametros.ingresso ?? "")
+      ? (parametros.ingresso ?? "")
+      : filtrosIniciais.ingresso,
+  };
+}
+
+/**
+ * Favoritos com datas futuras, do mais próximo para o mais distante,
+ * no máximo `limite`. Favoritos sem data futura ficam de fora.
+ */
+export function proximosFavoritos(
+  eventos: Evento[],
+  favoritos: string[],
+  limite: number,
+  agora = new Date(),
+): Evento[] {
+  const salvo = new Set(favoritos);
+  return eventos
+    .filter((evento) => salvo.has(chaveEvento(evento)))
+    .flatMap((evento) => {
+      const primeira = datasFiltradas(evento, filtrosIniciais, agora)[0];
+      return primeira ? [{ evento, inicio: Date.parse(primeira.inicio) }] : [];
+    })
+    .sort((a, b) => a.inicio - b.inicio)
+    .slice(0, limite)
+    .map(({ evento }) => evento);
 }
 
 export function datasFiltradas(
