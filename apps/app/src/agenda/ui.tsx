@@ -23,6 +23,11 @@ import {
   type Filtros,
   formatarData,
 } from "./dados";
+import {
+  type Coordenada,
+  distanciaEvento,
+  formatarDistancia,
+} from "./distancia";
 
 export function useCores() {
   return colors[useColorScheme() === "dark" ? "dark" : "light"];
@@ -131,16 +136,20 @@ export function ListaEventos({
   eventos,
   filtros,
   vazio,
+  origem = null,
 }: {
   eventos: Evento[];
   filtros: Filtros;
   vazio: string;
+  origem?: Coordenada | null;
 }) {
   const { recarregar } = useAgenda();
   const cores = useCores();
   const renderItem = useCallback(
-    (evento: Evento) => <CartaoEvento evento={evento} filtros={filtros} />,
-    [filtros],
+    (evento: Evento) => (
+      <CartaoEvento evento={evento} filtros={filtros} origem={origem} />
+    ),
+    [filtros, origem],
   );
   if (!eventos.length)
     return (
@@ -166,12 +175,15 @@ export function ListaEventos({
 function CartaoEvento({
   evento,
   filtros,
+  origem = null,
 }: {
   evento: Evento;
   filtros: Filtros;
+  origem?: Coordenada | null;
 }) {
   const cores = useCores();
   const data = datasFiltradas(evento, filtros, new Date())[0];
+  const distancia = origem ? distanciaEvento(evento, origem) : null;
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   return (
@@ -181,7 +193,7 @@ function CartaoEvento({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${t("agenda.abrir", { nome: evento.nome })}. ${data ? formatarData(data.inicio) : ""}`}
+        accessibilityLabel={`${t("agenda.abrir", { nome: evento.nome })}. ${data ? formatarData(data.inicio) : ""}${distancia !== null ? `. ${formatarDistancia(distancia)}` : ""}`}
         style={{
           // A ponte de reciclagem precisa da largura explícita para quebrar títulos longos.
           width: width - insets.left - insets.right,
@@ -240,6 +252,11 @@ function CartaoEvento({
                 ? t("agenda.gratuito")
                 : (data?.preco ?? t("detalhe.semPreco"))}
             </Text>
+            {distancia !== null ? (
+              <Text style={{ fontSize: 14, color: cores.mutedForeground }}>
+                {formatarDistancia(distancia)}
+              </Text>
+            ) : null}
           </View>
         </View>
       </Pressable>

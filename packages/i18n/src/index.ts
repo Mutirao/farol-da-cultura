@@ -15,6 +15,8 @@ export const resources = {
         subtitulo: "Descubra o que acontece no Ceará",
         busca: "Buscar evento, espaço ou cidade",
         filtros: "Filtrar programação",
+        ordenarPerto: "Ordenar: mais perto",
+        ordemData: "Ordenar: data",
         limpar: "Limpar filtros",
         verResultados: "Ver resultados",
         periodo: "Período",

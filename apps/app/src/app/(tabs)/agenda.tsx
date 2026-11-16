@@ -11,6 +11,11 @@ import {
 } from "react-native";
 import { useAgenda } from "../../agenda/AgendaProvider";
 import { type Filtros, filtrar, filtrosIniciais } from "../../agenda/dados";
+import { type Coordenada, ordenarPorPerto } from "../../agenda/distancia";
+import {
+  localizacaoConhecida,
+  pedirLocalizacao,
+} from "../../agenda/localizacao";
 import {
   Acao,
   EstadoAgenda,
@@ -25,10 +30,28 @@ export default function Agenda() {
   const { height } = useWindowDimensions();
   const [filtros, setFiltros] = useState(filtrosIniciais);
   const [aberto, setAberto] = useState(false);
+  const [origem, setOrigem] = useState<Coordenada | null>(
+    localizacaoConhecida(),
+  );
+  const [perto, setPerto] = useState(false);
   const filtrados = useMemo(
     () => filtrar(eventos, filtros),
     [eventos, filtros],
   );
+  const visiveis = useMemo(
+    () => (perto && origem ? ordenarPorPerto(filtrados, origem) : filtrados),
+    [filtrados, perto, origem],
+  );
+  async function alternarPerto() {
+    if (perto) {
+      setPerto(false);
+      return;
+    }
+    const coordenada = await pedirLocalizacao();
+    if (!coordenada) return; // permissão negada ou indisponível: degrada sem erro
+    setOrigem(coordenada);
+    setPerto(true);
+  }
   const categorias = [
     ...new Set(
       eventos.flatMap((e) => e.categorias.map((c) => c.categorias.nome)),
@@ -118,11 +141,15 @@ export default function Agenda() {
             setAberto((atual) => !atual);
           }}
         />
+        <Acao
+          label={perto ? t("agenda.ordemData") : t("agenda.ordenarPerto")}
+          onPress={() => void alternarPerto()}
+        />
         <Text
           accessibilityLiveRegion="polite"
           style={{ color: cores.mutedForeground }}
         >
-          {t("agenda.resultados", { count: filtrados.length })}
+          {t("agenda.resultados", { count: visiveis.length })}
         </Text>
       </View>
       {aberto ? (
@@ -159,9 +186,10 @@ export default function Agenda() {
       <EstadoAgenda />
       {!carregando && !erro ? (
         <ListaEventos
-          eventos={filtrados}
+          eventos={visiveis}
           filtros={filtros}
           vazio={t("agenda.vazio")}
+          origem={perto ? origem : null}
         />
       ) : null}
     </Tela>

@@ -10,7 +10,9 @@ import {
   formatarData,
   formatarDataLonga,
 } from "../../agenda/dados";
+import { distanciaEvento, formatarDistancia } from "../../agenda/distancia";
 import { abrirComoChegar, abrirPagina } from "../../agenda/links";
+import { localizacaoConhecida } from "../../agenda/localizacao";
 import { Acao, EstadoAgenda, Paragrafo, useCores } from "../../agenda/ui";
 
 export default function DetalheEvento() {
@@ -55,6 +57,11 @@ export default function DetalheEvento() {
       : null;
   const primeiraData = datas[0];
   const espacoPrincipal = primeiraData?.espaco ?? null;
+  const origemConhecida = localizacaoConhecida();
+  const distancia =
+    espacoPrincipal && origemConhecida
+      ? distanciaEvento(evento, origemConhecida)
+      : null;
   const convite = mensagemConvite(t("detalhe.compartilharChamada"), [
     primeiraData
       ? t("detalhe.compartilharQuando", {
@@ -164,6 +171,9 @@ export default function DetalheEvento() {
                 .filter(Boolean)
                 .join(" · ") || t("detalhe.semEspaco")}
             </Paragrafo>
+            {distancia !== null ? (
+              <Paragrafo>{formatarDistancia(distancia)}</Paragrafo>
+            ) : null}
             {evento.classificacao_etaria ? (
               <Paragrafo>
                 {t("detalhe.classificacao", {
