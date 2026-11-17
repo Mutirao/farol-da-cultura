@@ -19,6 +19,7 @@
     "@types/node": "catalog:",
     "supabase": "3.1.0",
     "turbo": "2.11.11",
+    "postgres": "3.4.9",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
