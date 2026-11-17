@@ -1,0 +1,39 @@
+# Mesma observação do dev: nasce suspend: true. Ativar é gate humano
+# separado (ver AGENTS.md). Secret "coleta-mapa-cultural-ce" criado fora
+# deste repositório; imagePullSecrets "ghcr-cred" igual ao painel.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: coleta-mapa-cultural-ce
+  namespace: farol-unificado
+  labels:
+    app.kubernetes.io/name: coleta-mapa-cultural-ce
+    app.kubernetes.io/part-of: farol-da-cultura
+spec:
+  schedule: "0 3 * * *"
+  timeZone: America/Fortaleza
+  suspend: true
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: coleta-mapa-cultural-ce
+        spec:
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-cred
+          containers:
+            - name: importar
+              image: ghcr.io/mutirao/farol-da-cultura-coleta
+              envFrom:
+                - secretRef:
+                    name: coleta-mapa-cultural-ce
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 256Mi

@@ -6,15 +6,28 @@ Objetivo: validar `docker build` + render de manifestos para `apps/painel` e
 Helm release legado `farol`/`farol-dev` de `raspagem-farol`, hoje com Flux
 gerindo só infraestrutura de apoio).
 
-## Decisão do usuário (16/11/2026)
+## Decisões do usuário (16-17/11/2026)
 
-- Backend: Supabase **hospedado** (não self-hosted no cluster).
+- Backend: Supabase **hospedado** (não self-hosted no cluster). Capacidade do
+  plano atual confirmada como suficiente para o volume de hoje (17/11/2026);
+  revisitar se painel+coleta crescerem.
 - Alvo Kubernetes: painel (`apps/painel`) e worker de coleta
   (`workers/coleta`), via Skaffold — mesmo padrão já usado por
   `raspagem-farol` (`skaffold.yaml` + Helm, cluster `caicara-dev`).
+- Registro de imagens: `ghcr.io/mutirao/farol-da-cultura-painel` e
+  `-coleta` (mesmo padrão de `ghcr.io/mutirao/raspagem-farol`); publicar de
+  verdade exige `docker login ghcr.io` fora desta sessão.
+- Ingress/domínio: `*.farol.app`; o painel usa `painel.farol.app` via
+  Traefik (`ingressClassName: traefik`), TLS na borda do Cloudflare — mesmo
+  padrão do release legado (`raspagem.mutirao.org.br`, sem cert-manager).
+  DNS do subdomínio ainda precisa apontar para os IPs do LoadBalancer do
+  Traefik (ver `kubectl get ingress -A`); isso é operação fora deste repo.
+- Namespace legado: `farol`/`farol-dev` (Helm release `raspagem-farol`)
+  continua ativo sem ser tocado; o novo trabalho usa namespaces próprios
+  (`farol-unificado`/`farol-unificado-dev`) para não colidir.
 - Escopo autorizado nesta etapa: **preparar e validar localmente**. Nenhum
-  `skaffold run`/`skaffold dev`/`skaffold deploy`/`kubectl apply` foi
-  executado contra o cluster.
+  `skaffold run`/`skaffold dev`/`skaffold deploy`/`kubectl apply` real, nem
+  push de verdade a `ghcr.io`, foi executado contra infraestrutura externa.
 
 ## O que existe aqui
 
@@ -26,15 +39,17 @@ gerindo só infraestrutura de apoio).
   `pnpm --filter @farol/coleta run importar` como usuário não-root `node`.
   `SUPABASE_URL`/`SUPABASE_SECRET_KEY` só em tempo de execução via Secret do
   Kubernetes, nunca copiados para a imagem.
-- `infra/k8s/dev/`: manifestos simples (sem Helm) num namespace isolado
-  `farol-unificado-dev` — deliberadamente distinto de `farol`/`farol-dev`
-  (ocupados pelo release legado) para não colidir nem interferir nele.
-  O CronJob nasce `suspend: true`; ativá-lo é gate humano.
-- `skaffold.yaml` (raiz): `build.local.push: false`; `deploy.kustomize`
-  aponta para `infra/k8s/dev`. Não há profile `prod` ainda — produção
-  depende de decisões pendentes (registro de imagens, ingress/domínio,
-  gestão de segredos, e se o legado em `farol`/`farol-dev` será substituído
-  ou convive por um tempo).
+- `infra/k8s/dev/`: manifestos simples (sem Helm), namespace
+  `farol-unificado-dev`, imagens locais sem registro. CronJob nasce
+  `suspend: true`; ativá-lo é gate humano.
+- `infra/k8s/prod/`: mesmo desenho, namespace `farol-unificado`, imagens
+  `ghcr.io/mutirao/farol-da-cultura-*` com `imagePullSecrets: ghcr-cred`
+  (Secret criado fora deste repositório, nunca commitado — mesma convenção
+  do `ghcr-cred` em ns `farol`), e `Ingress` em `painel.farol.app`. CronJob
+  também nasce `suspend: true`.
+- `skaffold.yaml` (raiz): profile padrão = dev (`build.local.push: false`,
+  manifestos em `infra/k8s/dev`); profile `prod` troca para as imagens
+  `ghcr.io/mutirao/...` com `push: true` e manifestos em `infra/k8s/prod`.
 
 ## Validado nesta etapa
 
@@ -43,14 +58,23 @@ gerindo só infraestrutura de apoio).
 - `docker build -f workers/coleta/Dockerfile .` — build ok; rodado sem
   `SUPABASE_URL`/`SUPABASE_SECRET_KEY` falha exatamente com o guard esperado
   do próprio `importar.ts` (prova que o script roda de verdade na imagem).
-- `skaffold diagnose` / `skaffold render --offline` / `skaffold build
-  --push=false` (ver histórico de comandos da sessão).
+- `skaffold diagnose` (default e `-p prod`).
+- `skaffold build --push=false` (default e `-p prod --push=false`, só para
+  gerar tags locais de validação — o profile `prod` real usa `push: true`,
+  nunca executado nesta sessão).
+- `skaffold render --offline --digest-source=local` (default e `-p prod`) +
+  `kubectl apply --dry-run=client` sobre o resultado — schema válido para
+  Namespace, Deployment, Service, CronJob e Ingress, sem contato com o
+  cluster.
 
 ## Pendências explícitas (não resolvidas aqui)
 
-- Capacidade/volume do Supabase hospedado (plano Free) sob carga de
-  painel+coleta — evidência humana, não deste spike.
-- Registro de imagens para publicação real (hoje só local); se for
-  `ghcr.io/mutirao/...` como o legado, precisa decisão + login.
-- Profile `prod`, ingress/domínio e o destino do release legado
-  `farol`/`farol-dev` (convivência ou substituição) — gate humano separado.
+- `docker login ghcr.io` + primeiro push real das imagens — gate humano
+  (credencial).
+- Criar os Secrets `ghcr-cred` e `coleta-mapa-cultural-ce` nos namespaces
+  `farol-unificado`/`farol-unificado-dev` — nunca neste repositório.
+- Apontar o DNS de `painel.farol.app` (e demais subdomínios de
+  `*.farol.app` conforme forem necessários) para o cluster.
+- Primeiro `skaffold run -p prod` (ou `skaffold deploy`) contra o cluster —
+  gate humano separado; ativação do CronJob de coleta é outro gate humano
+  independente (nasce suspenso nos dois profiles).

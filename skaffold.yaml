@@ -3,11 +3,17 @@ kind: Config
 metadata:
   name: farol-da-cultura
 
-# Spike de preparação/validação local (16/11/2026): ver infra/k8s/README.md
-# para escopo, decisões e pendências. Nenhum `skaffold run`/`dev`/`deploy`
-# foi executado contra o cluster compartilhado nesta etapa — só `build`,
-# `render --offline` e `diagnose`. `push: false` por padrão: publicar exige
-# decidir registro de imagens antes.
+# Default = dev: imagens locais, sem push, manifestos em infra/k8s/dev
+# (namespace farol-unificado-dev). `-p prod` = ghcr.io/mutirao, push: true
+# (precisa `docker login ghcr.io` antes), manifestos em infra/k8s/prod
+# (namespace farol-unificado, distinto do legado farol/farol-dev do Helm
+# release raspagem-farol — convivem sem colidir). Ver infra/k8s/README.md
+# para decisões (16-17/11/2026) e pendências.
+#
+# Nesta etapa só foram executados `build`, `render --offline --digest-
+# source=local` e `diagnose`, nos dois profiles — nenhum `skaffold run`/
+# `dev`/`deploy` nem push real a ghcr.io, nem `kubectl apply` contra o
+# cluster compartilhado.
 build:
   artifacts:
     - image: farol-da-cultura-painel
@@ -29,3 +35,25 @@ manifests:
 
 deploy:
   kubectl: {}
+
+profiles:
+  - name: prod
+    build:
+      artifacts:
+        - image: ghcr.io/mutirao/farol-da-cultura-painel
+          context: .
+          docker:
+            dockerfile: apps/painel/Dockerfile
+        - image: ghcr.io/mutirao/farol-da-cultura-coleta
+          context: .
+          docker:
+            dockerfile: workers/coleta/Dockerfile
+      local:
+        push: true
+        useBuildkit: true
+    manifests:
+      kustomize:
+        paths:
+          - infra/k8s/prod
+    deploy:
+      kubectl: {}

@@ -1,0 +1,83 @@
+# painel.farol.app roteia pelo Traefik do cluster (mesmo padrão do release
+# legado farol/raspagem-farol): TLS termina na borda do Cloudflare, Traefik
+# roteia HTTP puro — sem cert-manager, sem Secret de TLS aqui.
+# Imagem privada em ghcr.io/mutirao: imagePullSecrets "ghcr-cred" tem que
+# existir no namespace farol-unificado antes do primeiro deploy (criado fora
+# deste repositório, nunca commitado — mesma convenção do ghcr-cred em ns
+# farol).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: painel
+  namespace: farol-unificado
+  labels:
+    app.kubernetes.io/name: painel
+    app.kubernetes.io/part-of: farol-da-cultura
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: painel
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: painel
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: painel
+          image: ghcr.io/mutirao/farol-da-cultura-painel
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: painel
+  namespace: farol-unificado
+  labels:
+    app.kubernetes.io/name: painel
+spec:
+  selector:
+    app.kubernetes.io/name: painel
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: painel
+  namespace: farol-unificado
+  labels:
+    app.kubernetes.io/name: painel
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: painel.farol.app
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: painel
+                port:
+                  name: http
