@@ -3,7 +3,7 @@
 -- próprias; ausência nessas fontes nunca vira delete. Ver plano unificado §5.2.
 
 begin;
-select plan(4);
+select plan(6);
 
 set local role service_role;
 
@@ -21,6 +21,21 @@ select throws_ok(
   '22023',
   'importar_agenda: fonte não autorizada para snapshot por janela',
   'fonte nula também é recusada pelo guard'
+);
+
+-- Mesmo uma janela malformada deve falhar pela fonte, não pelo timestamp.
+select throws_ok(
+  $$select public.importar_agenda('sympla', '{"janela":{"de":"not-a-date"}}'::jsonb)$$,
+  '22023',
+  'importar_agenda: fonte não autorizada para snapshot por janela',
+  'guard precede a conversão do início da janela'
+);
+
+select throws_ok(
+  $$select public.importar_agenda(null, '{"janela":{"ate":"not-a-date"}}'::jsonb)$$,
+  '22023',
+  'importar_agenda: fonte não autorizada para snapshot por janela',
+  'guard precede a conversão do fim da janela'
 );
 
 -- A recusa não grava nem remove nada.
