@@ -1,0 +1,30 @@
+{
+  "name": "@farol/painel",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "19.3.0",
+    "react-admin": "5.15.7",
+    "ra-supabase": "4.0.0",
+    "@supabase/supabase-js": "2.119.0",
+    "@mui/material": "7.3.11",
+    "@mui/icons-material": "7.3.11",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/react": "~19.3.0",
+    "@types/react-dom": "19.3.0",
+    "vite": "7.3.8",
+    "@vitejs/plugin-react": "4.7.0"
+  }
+}

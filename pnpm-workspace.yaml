@@ -12,7 +12,9 @@ catalog:
   "@types/node": 26.6.6
 
 # pnpm 12 (V16): só pacotes listados aqui podem rodar scripts de instalação.
-allowBuilds: {}
+allowBuilds:
+  # O binário opcional por plataforma basta ao Vite; não executar postinstall.
+  esbuild@0.28.2: false
 
 minimumReleaseAgeExclude:
   - "@biomejs/biome@2.6.7"
