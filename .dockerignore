@@ -1,0 +1,17 @@
+# Contexto de build do Docker/Skaffold: só o necessário para instalar e
+# construir com pnpm. Ver infra/k8s/README.md para o que isto serve.
+**/node_modules
+**/.turbo
+**/dist
+**/.expo
+**/.git
+**/*.log
+.git
+.omh
+.agents
+.claude
+.github
+supabase/.temp
+supabase/.branches
+android
+ios

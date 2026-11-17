@@ -1,0 +1,39 @@
+# Importação da agenda do Mapa Cultural do Ceará. Nasce suspensa (suspend:
+# true): nenhum agente ou manifesto deste repositório ativa o cron — isso é
+# gate humano explícito (ver AGENTS.md e docs/checklists/fase-0-contencao.md
+# para o equivalente do piloto Sympla). As credenciais vêm do Secret
+# "coleta-mapa-cultural-ce", criado fora deste repositório (nunca commitado).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: coleta-mapa-cultural-ce
+  namespace: farol-unificado-dev
+  labels:
+    app.kubernetes.io/name: coleta-mapa-cultural-ce
+    app.kubernetes.io/part-of: farol-da-cultura
+spec:
+  schedule: "0 3 * * *"
+  timeZone: America/Fortaleza
+  suspend: true
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: coleta-mapa-cultural-ce
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: importar
+              image: farol-da-cultura-coleta
+              envFrom:
+                - secretRef:
+                    name: coleta-mapa-cultural-ce
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 256Mi

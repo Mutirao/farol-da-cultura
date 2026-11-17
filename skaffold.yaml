@@ -1,0 +1,31 @@
+apiVersion: skaffold/v4beta14
+kind: Config
+metadata:
+  name: farol-da-cultura
+
+# Spike de preparação/validação local (16/11/2026): ver infra/k8s/README.md
+# para escopo, decisões e pendências. Nenhum `skaffold run`/`dev`/`deploy`
+# foi executado contra o cluster compartilhado nesta etapa — só `build`,
+# `render --offline` e `diagnose`. `push: false` por padrão: publicar exige
+# decidir registro de imagens antes.
+build:
+  artifacts:
+    - image: farol-da-cultura-painel
+      context: .
+      docker:
+        dockerfile: apps/painel/Dockerfile
+    - image: farol-da-cultura-coleta
+      context: .
+      docker:
+        dockerfile: workers/coleta/Dockerfile
+  local:
+    push: false
+    useBuildkit: true
+
+manifests:
+  kustomize:
+    paths:
+      - infra/k8s/dev
+
+deploy:
+  kubectl: {}
