@@ -110,7 +110,7 @@ O prazo de revalidação e a política para indisponibilidade, ocultação ou re
 
 ## 7. Plataformas e operação
 
-- **Aplicativo público:** Android, iOS e web no escopo. A direção continua Expo, Expo Router e camada universal do Expo, com adaptações comprovadas por plataforma. Não presumir que NativeTabs, arquivos locais, mapas, compartilhamento e permissões funcionam no navegador sem verificação.
+- **Aplicativo público:** Android, iOS e web no escopo. A direção continua Expo, Expo Router e camada universal do Expo, com adaptações comprovadas por plataforma. Não presumir que NativeTabs, arquivos locais, mapas, compartilhamento e permissões funcionam no navegador sem verificação. A versão web é hospedada no mesmo modelo do painel, em artefato e domínio próprios.
 - **Painel:** aplicação administrativa separada, React-admin padrão + ra-supabase. Opera fontes, scrapers, instâncias, bases, cidades, curadoria, preparação, confirmação e saúde das sincronizações; não publica registros externos diretamente na agenda.
 - **Workers:** múltiplos conectores e scrapers com limites e agendamento por configuração. Isolar Chromium do importador leve e dos bundles de app/painel; múltiplos scrapers não exigem microserviços ou um framework por fonte.
 - **Segurança:** dados de preparação, evidências restritas e credenciais não ficam públicos. RLS e grants explícitos, papéis de servidor nos workers e autorização de operador no backend; nunca credencial privilegiada no aplicativo ou no painel.

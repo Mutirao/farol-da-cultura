@@ -6,7 +6,8 @@ O produto contempla **Android, iOS e web**, conforme o
 SDK 58, com alvos configurados apenas para Android/iOS; web ainda precisa ser
 habilitada e validada. A presença do script web não comprova suporte de
 navegação, arquivos/favoritos, mapas ou permissões no navegador. O painel
-administrativo é outra aplicação e não substitui esse alvo público.
+administrativo é outra aplicação e não substitui esse alvo público. A hospedagem
+do build web acompanha o modelo do painel, com artefato e domínio próprios.
 
 Estado atual: agenda com busca e filtros, detalhes de
 eventos e espaços, favoritos locais, locais abertos no app de mapas e Conta com
