@@ -1,11 +1,24 @@
-# Farol da Cultura — app mobile
+# Farol da Cultura — aplicativo público
 
-Base Expo SDK 58, somente Android e iOS. Agenda com busca e filtros, detalhes de
+O produto contempla **Android, iOS e web**, conforme o
+[ADR-0009](../../docs/adr/0009-ecossistema-institucional.md) e a trilha U8 do
+[plano unificado](../../docs/PLANO-UNIFICADO-2026-11-16.md). A base atual é Expo
+SDK 58, com alvos configurados apenas para Android/iOS; web ainda precisa ser
+habilitada e validada. A presença do script web não comprova suporte de
+navegação, arquivos/favoritos, mapas ou permissões no navegador. O painel
+administrativo é outra aplicação e não substitui esse alvo público.
+
+Estado atual: agenda com busca e filtros, detalhes de
 eventos e espaços, favoritos locais, locais abertos no app de mapas e Conta com
 termos, privacidade e Sobre. Ainda não tem mapa embutido, login ou notificações.
 Os textos vêm de `@farol/i18n` (i18next,
 expo-localization, fallback pt-BR); o tint vem de `@farol/tokens/native`,
 exportado de `packages/tokens/dist/native.ts`.
+
+A agenda pública deve ser uma projeção das informações confirmadas nas APIs
+institucionais de Mapas Culturais. Preparação de scraping fica restrita ao
+painel/operação. O importador existente cobre Ceará; múltiplas instâncias e
+cidades exigem contratos próprios. Ver [ontologia e fluxo](../../docs/ONTOLOGIA-E-FLUXO.md).
 
 ## Desenvolvimento
 

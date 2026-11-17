@@ -1,6 +1,6 @@
 # ADR-0005: App web — escopo da camada universal do Expo UI
 
-- **Status:** Aceito
+- **Status:** Aceito na Fase 0; exclusão futura do alvo web superada pelo [ADR-0009](0009-ecossistema-institucional.md) em 2026-11-17. O princípio de máximo nativo no Expo permanece.
 - **Data:** 2026-11-11 (decisão em 2026-11-12)
 - **Decisor:** Lucas Pirola, em sessão ativa, 12/11/2026
 - **Requisitos:** OPS-02, OPS-05, D11, D13
@@ -16,7 +16,12 @@ Fatos relevantes:
 - `app.config.ts` da F0-07 declara `platforms: ['ios', 'android']` nesta fase. O suporte à web é um `platforms` futuro, não automático: adicionar `'web'` exige revisão de cada dependência nativa usada pelo app (mapas, abas nativas, UI universal) antes de habilitar o alvo.
 - Implementação de fato do app web está fora do escopo de qualquer tarefa da Fase 0 (ver plano revisado, §12: "implementação do app web (D13)" listada como o que fica de fora).
 
-## Decisão
+## Decisão histórica da Fase 0
+
+> O aplicativo público web passou a integrar o escopo aprovado em 2026-11-17.
+> As restrições de alvo abaixo registram a decisão anterior, não uma proibição
+> vigente. Implementação e compatibilidade são tarefas U8 do
+> [plano unificado](../PLANO-UNIFICADO-2026-11-16.md), distintas do painel.
 
 **D13 respondida em 12/11/2026, pelo princípio geral "manter o máximo nativo no Expo" (registrado em `AGENTS.md`):**
 

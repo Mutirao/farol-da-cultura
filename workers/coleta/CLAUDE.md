@@ -2,4 +2,4 @@
 
 ## Específico de `workers/coleta`
 
-Este diretório nasce na Fase 1 (worker de coleta/raspagem). Ver `/mnt/data/code/mutirao/raspagem-farol` (repositório separado, `Mutirao/Raspagem-Farol`) para o que será integrado aqui. Nada aqui ainda.
+Sincronização da agenda a partir da API do Mapa Cultural do Ceará (piloto): `src/mapaCultural.ts` + RPC `public.importar_agenda`, cujo guard aceita só `mapa-cultural-ce`. Não adicionar Chromium/Crawlee aqui nem reutilizar o snapshot para scraping ou outra instância sem contrato e testes (ver `README.md`, `docs/ONTOLOGIA-E-FLUXO.md` e `docs/PLANO-UNIFICADO-2026-11-16.md`). A raspagem legada fica em `/mnt/data/code/farol/raspagem-farol` (`Mutirao/Raspagem-Farol`) e será portada para pacote próprio.

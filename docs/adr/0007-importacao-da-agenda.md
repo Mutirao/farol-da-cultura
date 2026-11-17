@@ -5,6 +5,15 @@
 - **Decisores:** _______________________ (a D1 do plano é da pessoa; a implementação segue a proposta até ela decidir)
 - **Requisitos:** SEG-01; tarefa M7 e decisão D1 de `docs/PLANO-APP-MOBILE.md`
 
+> **Limite vigente, 2026-11-17:** o [ADR-0009](0009-ecossistema-institucional.md)
+> amplia o produto para múltiplas instâncias/cidades e preserva Mapas Culturais
+> como referência institucional. Este ADR descreve o importador Ceará existente,
+> não um contrato genérico para qualquer fonte. O guard atual aceita somente
+> `mapa-cultural-ce`; a alternativa histórica de alimentar a mesma RPC com
+> raspagem foi superada. Coleta externa precisa ser incorporada e confirmada na
+> API da instância antes de entrar na agenda pública. Não ampliar o snapshot
+> sem revisão de cobertura/identidade e testes por recorte.
+
 ## Contexto
 
 O app novo precisa de dados reais, e o plano enxuto cortou o worker de raspagem. Fatos de 12/11/2026:

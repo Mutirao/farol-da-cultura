@@ -13,15 +13,15 @@ Guia operacional do monorepo. Fonte de verdade para convenções; `CLAUDE.md` im
 
 ## Estrutura do monorepo
 
-- `apps/app/` — app Expo SDK 58 (4 abas nativas: agenda, mapa, favoritos, conta). Raiz do router: `src/app/`.
-- `apps/painel/` — painel administrativo (Refine Core); nasce na Fase 3.
+- `apps/app/` — aplicativo público Expo SDK 58 (4 abas nativas: agenda, mapa, favoritos, conta). Raiz do router: `src/app/`. Escopo do produto: Android, iOS e web (ADR-0009); hoje `app.config.ts` só habilita iOS/Android — web é a trilha U8 do plano unificado.
+- `apps/painel/` — painel administrativo separado: React-admin padrão + ra-supabase (D6 revisada, ADR-0008). Hoje só a prova de composição U0.3.
 - `packages/tokens/` — `@farol/tokens`: paleta, contraste testado, gera `dist/native.ts` e `dist/theme.css`.
 - `packages/ui-native/` — `@farol/ui-native`: 4 wrappers finos sobre `@expo/ui` universal (Button, Toggle, ListSection, Sheet), `accessibilityLabel` obrigatório.
 - `packages/i18n/` — i18next + expo-localization, pt-BR.
 - `packages/tsconfig/` — tsconfig base compatível com TS 7.
-- `workers/coleta/` — worker de coleta/raspagem; nasce na Fase 1.
+- `workers/coleta/` — sincronização da agenda a partir da API do Mapa Cultural do Ceará (piloto). Scrapers (ex.: `workers/sympla`, proposto) ficam em pacotes próprios.
 - `supabase/` — config local, migrations, testes pgTAP, seed.
-- `docs/` — plano revisado, ADRs, checklists, relatórios (incluindo `docs/relatorios/portao-0.md`, o gate da Fase 0).
+- `docs/` — plano unificado vigente (`docs/PLANO-UNIFICADO-2026-11-16.md`), ontologia e fluxo (`docs/ONTOLOGIA-E-FLUXO.md`), ADRs, checklists, relatórios e históricos (Fase 0, plano mobile, `docs/relatorios/portao-0.md`).
 - `.claude/` — settings, hooks, skills do projeto (`.claude/skills/`) e de comunidade (`.agents/skills/`).
 - `.github/workflows/` — CI: `ci.yml` (lint/typecheck/test + gitleaks), `agent-tools.yml` (hooks + skills check), `supabase-smoke.yml` (pgTAP), `app-ci.yml` (expo-doctor/export).
 
@@ -50,6 +50,12 @@ Guia operacional do monorepo. Fonte de verdade para convenções; `CLAUDE.md` im
 - Supabase hospedado: plano Free, projeto único `farol-dev` em `sa-east-1` (sem `farol-hml`).
 - Sistemas legados (`farol-cultural`, `importador-idm`, API Node antiga): serão **arquivados**, não remediados item a item — ver nota em `docs/checklists/fase-0-contencao.md`.
 
+## Decisões vigentes (ecossistema institucional, aceitas 17/11/2026 — ADR-0009)
+
+- Mapas Culturais é a referência institucional. Registro coletado só entra na agenda pública do Farol após confirmação na API da instância; preparação fica restrita à operação.
+- Vocabulário em `docs/ONTOLOGIA-E-FLUXO.md`: "instância" vale para ambientes independentes e subsites; evento, ocorrência e espaço cultural; fluxo coleta → normalização → curadoria → preparação de envio → incorporação na instância → sincronização da agenda → exibição no aplicativo.
+- Escopo: aplicativo Android/iOS/web, painel separado, múltiplos scrapers, instâncias e cidades. Ceará e Sympla/Fortaleza são pilotos, não limites.
+
 ## Skills do projeto (`.claude/skills/`)
 
 - `farol-sync-rules` — regras de sincronização/reconciliação de dados entre dispositivo e Supabase.
@@ -59,4 +65,4 @@ Guia operacional do monorepo. Fonte de verdade para convenções; `CLAUDE.md` im
 - `farol-connector` — contrato de conectores de dados (ex.: coleta/raspagem).
 - `farol-native-ui` — wrappers reais de `packages/ui-native`, tokens, checklist de acessibilidade; prevalece sobre as skills oficiais `expo-ui`/`expo-router` em caso de conflito.
 
-Ver também `CLAUDE.md` (específico do Claude Code), `docs/PLANO-FASE-0-REVISADO.md` (plano completo) e `docs/relatorios/portao-0.md` (estado do gate).
+Ver também `CLAUDE.md` (específico do Claude Code), `docs/PLANO-UNIFICADO-2026-11-16.md` (plano vigente), `docs/ONTOLOGIA-E-FLUXO.md` (termos e fluxo), `docs/PLANO-FASE-0-REVISADO.md` (histórico da Fase 0) e `docs/relatorios/portao-0.md` (estado do gate).

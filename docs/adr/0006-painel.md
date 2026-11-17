@@ -1,6 +1,6 @@
 # ADR-0006: Framework do painel administrativo
 
-- **Status:** Proposto
+- **Status:** Registro histórico da decisão por Refine; escolha de framework superada pelo [ADR-0008](0008-plataforma-unificada.md), com revisão D6 aceita em 2026-11-16 e prova U0.3. A comparação abaixo é preservada, não orientação para instalar Refine.
 - **Data:** 2026-11-11
 - **Decisores:** pessoa (D6, respondida na seção 16/Q4 do plano aceito em 11/11/2026)
 - **Requisitos:** QUA-01

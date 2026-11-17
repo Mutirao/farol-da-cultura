@@ -4,6 +4,20 @@ Importa a agenda do Mapa Cultural do Ceará para o Supabase (tarefa M7 de
 [`docs/PLANO-APP-MOBILE.md`](../../docs/PLANO-APP-MOBILE.md); decisão em
 [`docs/adr/0007-importacao-da-agenda.md`](../../docs/adr/0007-importacao-da-agenda.md)).
 
+## Papel no fluxo institucional
+
+Este pacote executa a **sincronização da agenda**: lê informações já presentes
+na API da instância e atualiza a projeção de leitura do Farol. Não incorpora
+raspagem no Mapas nem publica diretamente registros externos em preparação.
+O guard da RPC é restrito a `mapa-cultural-ce`; não reutilizar o snapshot para
+Sympla, outra instância ou outra cobertura sem contrato e testes próprios.
+
+O escopo do produto inclui múltiplos scrapers, instâncias e cidades; este
+importador ainda é o piloto Ceará, com fuso e janela fixados no código.
+Bases compartilhadas, identidades e recortes precisam ser explicitados antes
+da expansão. Ver [ontologia e fluxo](../../docs/ONTOLOGIA-E-FLUXO.md) e
+[plano unificado](../../docs/PLANO-UNIFICADO-2026-11-16.md).
+
 Uma execução faz três coisas:
 
 1. Busca na API pública do Mapa Cultural todas as ocorrências de hoje até 62 dias à frente.

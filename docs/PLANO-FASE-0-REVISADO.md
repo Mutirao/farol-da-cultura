@@ -14,6 +14,8 @@ status_note: "Fase 0 Farol aceita: repo Mutirao/farol-da-cultura publico; Supaba
 > **Nota de edição, 12/11/2026 (fora do texto aceito):** a Fase 0 foi aprovada no PORTÃO 0, com pendências ([`relatorios/portao-0.md`](./relatorios/portao-0.md)). O trabalho daqui em diante está em [`PLANO-APP-MOBILE.md`](./PLANO-APP-MOBILE.md), com implementação autorizada pela pessoa em 12/11/2026.
 > Este arquivo trazia o mesmo plano três vezes, mais o boilerplate do gerador. As duas cópias e o boilerplate foram removidos (2005 → 609 linhas). O texto aceito, entre os marcadores abaixo, não mudou, e a numeração de seções e IDs que outros documentos citam continua valendo. O original completo está no histórico do git (`e0bad06`).
 
+> **Atualização de referência, 2026-11-17 (fora do texto aceito):** a evolução integrada agora é regida pelo [plano unificado](./PLANO-UNIFICADO-2026-11-16.md), pela [ontologia e fluxo institucional](./ONTOLOGIA-E-FLUXO.md) e pelo [ADR-0009](./adr/0009-ecossistema-institucional.md): aplicativo Android/iOS/web, painel, múltiplos scrapers, instâncias e cidades, com Mapas Culturais como referência institucional. O plano mobile preserva o histórico das entregas M; as exclusões históricas abaixo não limitam o produto atual. Esta atualização documental não autoriza nova execução.
+
 <!-- FAROL-F0-PLAN:BEGIN -->
 
 **Status:** aceito pela pessoa em 11/11/2026 (execução ainda não autorizada) · **Data:** 11/11/2026 · **Base:** `docs/PLANO-EXECUCAO.md` v1.0

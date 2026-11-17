@@ -2,6 +2,15 @@
 
 **Status:** implementação autorizada pela pessoa em 12/11/2026, com a resposta "pode implementar" ao plano proposto. A pessoa não respondeu às decisões D1 e D2 uma a uma: a implementação segue as propostas da seção 7 até que ela diga o contrário. · **Data:** 12/11/2026 · **Origem:** rascunho de agente, a pedido da pessoa.
 
+> **Revisão de escopo, 2026-11-17:** este documento permanece como histórico das
+> entregas M e das pendências mobile. O [plano unificado vigente](PLANO-UNIFICADO-2026-11-16.md)
+> e o [ADR-0009](adr/0009-ecossistema-institucional.md) passam a reger a evolução:
+> aplicativo Android, iOS e web, painel, múltiplos scrapers, instâncias e cidades.
+> As exclusões antigas de web/painel/raspagem nas seções 4–5 não limitam o produto.
+> A [ontologia e fluxo](ONTOLOGIA-E-FLUXO.md) exige confirmação na API institucional
+> antes de exibir qualquer registro coletado na agenda pública. As entregas e
+> evidências históricas abaixo não são reescritas como pendências novas.
+
 **Lugar deste plano:** a Fase 0 fica registrada em [`PLANO-FASE-0-REVISADO.md`](./PLANO-FASE-0-REVISADO.md) e foi aprovada, com pendências, em [`relatorios/portao-0.md`](./relatorios/portao-0.md). Este plano toma o lugar do roteiro das Fases 1 a 4 (dados, app, painel), que nunca entrou neste repositório: [`PLANO-EXECUCAO.md`](./PLANO-EXECUCAO.md) é um stub.
 
 **Andamento, 13/11/2026:** demonstração Android com dados reais, busca/filtros,

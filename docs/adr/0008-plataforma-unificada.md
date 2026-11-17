@@ -1,6 +1,6 @@
 # ADR-0008: Plataforma unificada de coleta, curadoria e agenda
 
-- **Status:** Proposta arquitetural do plano unificado; revisão D6 aceita pelo usuário em 2026-11-16. Corte, capacidade hospedada e exceção CSV continuam condicionados aos gates.
+- **Status:** Revisão D6 aceita pelo usuário em 2026-11-16; arquitetura parcialmente proposta. Publicação direta de coleta na agenda superada pelo [ADR-0009](0009-ecossistema-institucional.md), de 2026-11-17. Corte, capacidade hospedada e exceção CSV continuam condicionados aos gates.
 - **Data:** 2026-11-16
 - **Referências:** [plano unificado](../PLANO-UNIFICADO-2026-11-16.md), [ADR-0006](0006-painel.md), [ADR-0007](0007-importacao-da-agenda.md), [prova U0.3](../relatorios/unificacao-painel-compatibilidade.md).
 
@@ -31,15 +31,19 @@ o typecheck, o build e a composição local dessa escolha foram exercitados.
    grants explícitos; anon não lê coleta. Curador ativo é derivado de Auth UUID
    via `private.curator_identities` e usuário legado ativo com papel curator.
    Configuração de conectores, tokens, recibos e CSV base64 não ficam públicos.
-4. **Publicação explícita:** coletar não aprova; aprovar não publica; exportar
-   não publica. Sympla usa publicação incremental por fonte/ID, com controle de
-   versão. Ausência na listagem parcial não apaga nem cancela conteúdo. Recoleta
-   não sobrescreve o snapshot público e não desfaz despublicação. A projeção
-   editorial não substitui nem modifica os dados brutos históricos.
+4. **Fronteira institucional (revisão de 2026-11-17):** a proposta anterior
+   de publicar Sympla diretamente na agenda foi superada. Coletar não aprova;
+   aprovar não envia; exportar não comprova incorporação. Preparação permanece
+   restrita até confirmação do registro pela API da instância de Mapas
+   Culturais; a sincronização institucional então alimenta a agenda. Ausência
+   em listagem parcial não prova cancelamento. Recoleta não substitui dados
+   institucionais exibidos nem apaga decisões ou dados brutos históricos.
 5. **Contrato Mapa preservado:** `importar_agenda(text,jsonb)` mantém algoritmo,
    privilégios e snapshot por janela, restrito a `mapa-cultural-ce`. Sympla não
-   pode chamar esse algoritmo destrutivo; terá RPCs próprias. Cinco tabelas
-   mobile e suas políticas públicas não são remodeladas por conveniência.
+   pode chamar esse algoritmo destrutivo. Múltiplas instâncias/bases/cidades
+   exigem contrato de identidade, cobertura e testes antes da generalização;
+   não ampliar o guard por conveniência. Cinco tabelas de agenda e suas
+   políticas públicas não são remodeladas como efeito automático da revisão.
 6. **Auth:** login administrativo sem senha, cadastro público desabilitado,
    `shouldCreateUser:false` e confirmação explícita antes de `verifyOtp`. O
    adaptador de magic link ainda precisa ser implementado/testado; não é uma
@@ -49,6 +53,11 @@ o typecheck, o build e a composição local dessa escolha foram exercitados.
    compatibilidade Node/Edge e limites de CPU/memória/payload serão comparados
    com SQL e medidos em U4. Não criar fila/microserviço nem comprar capacidade
    como solução automática.
+
+8. **Escopo ampliado pelo ADR-0009:** aplicativo público Android, iOS e web;
+   painel separado; múltiplos scrapers, instâncias (incluindo subsites) e
+   cidades. Ceará e Sympla/Fortaleza são pilotos. Compartilhamento de base é
+   registrado separadamente, com proveniência e identidade preservadas.
 
 ## Consequências
 
@@ -72,5 +81,6 @@ o typecheck, o build e a composição local dessa escolha foram exercitados.
 
 - U0/D3: destino hospedado, volume de HTML/CSV, capacidade e backup confirmados
   por humano. Sem isso, não declarar o gate U0 inteiro concluído.
-- U2–U5: coletor, RPCs, publicação, exportação e painel completo com testes reais.
+- U1.5/U2–U5: contratos multidimensionais, scrapers, curadoria, envio, confirmação na API, sincronização, exportação e painel com testes reais.
+- U8: aplicativo público web e validação própria de Android/iOS/web; composição do painel e export mobile não satisfazem esse gate.
 - U6/U7: ensaio de migração, reconciliação de dados, autorização de corte e deploy.
