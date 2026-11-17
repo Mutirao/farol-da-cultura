@@ -151,6 +151,12 @@ Definir antes do corte a política de revalidação, cache, indisponibilidade e 
 
 ## 5. Roteiro revisado e verificável
 
+### Fase 0 por frente (esqueleto ponta a ponta, aceita em 2026-11-17)
+
+Antes de aprofundar cada fase U, cada frente entrega a fatia mais fina que se liga à seguinte, para que a corrente inteira (coleta → painel → envio → instância → sincronização → app Android e web) rode localmente e no CI. A lista de tarefas S0.1–S0.10, dependências e limites está em [`ROADMAP.md`](ROADMAP.md). Cada S0 é subconjunto de uma tarefa U abaixo e segue o contrato dela; nenhuma S0 cria atalho de coleta para a agenda.
+
+A Fase 0 usa uma instância de teste local (stub HTTP com fixtures, servido só em `127.0.0.1`, com a fonte `mapa-cultural-ce` no banco local). O guard de `importar_agenda` não muda. Essa instância prova o protocolo de confirmação, não uma incorporação real; a primeira instância real é o marco M4 do roadmap.
+
 Os IDs U0–U7 preservam a organização do plano anterior; U3 muda de publicação direta para incorporação/confirmação institucional. U8 acrescenta o aplicativo público web e provas de plataforma. Tarefas não marcadas como evidência histórica permanecem propostas.
 
 As tabelas abaixo delimitam escopos de escrita por pacote/área. Antes de executar uma fase, decompor cada tarefa em testes e arquivos concretos, com timestamps livres e contratos revisados; nomes de RPCs novas não são aprovados implicitamente. Nenhum executor deve copiar os contratos antigos de `publicar_curados`, `publicacoes_sympla` ou fallback público de espaço Sympla: foram retirados desta revisão por contornarem o Mapas.
