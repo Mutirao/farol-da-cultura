@@ -1,0 +1,4 @@
+# Falso positivo aprovado pelo usuario: apenas nomes de migrations SQL
+# nas linhas 9-10 deste commit; sem credencial. Excecao por fingerprint,
+# sem desabilitar regras, ignorar paths ou limitar o historico.
+4fa47d5a0cc45e0cb8728881b37022270a34f79f:scripts/migracao/gerar-baseline.ts:generic-api-key:9
