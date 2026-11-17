@@ -184,12 +184,21 @@ importers:
       '@biomejs/biome':
         specifier: 2.6.7
         version: 2.6.7
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.6
       supabase:
         specifier: 3.1.0
         version: 3.1.0
       turbo:
         specifier: 2.11.11
         version: 2.11.11
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@types/node@26.6.6)(vite@8.3.8(@types/node@26.6.6)(terser@5.51.2))
 
   apps/app:
     dependencies:
