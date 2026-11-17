@@ -1,0 +1,30 @@
+# Verificação de tela das lanes R2–R6 (Moto G35 5G, dev client de 16/11/2026)
+
+**Data:** 16/11/2026, sessão do loop · **Aparelho:** Moto G35 5G (`ZF525KHQ9G`), dev client `br.com.farol.cultura.dev` (reinstalado em 16/11/2026 20:31, já com `expo-location`) · **Metro:** `APP_VARIANT=development`, porta 8081, `.env.local` carregado (Supabase local via `adb reverse tcp:54321`) · **Fix do aparelho na sessão:** região de São Paulo (`-23.xx, -46.xx`, hAcc 400 m) — distâncias grandes são corretas para esse fix.
+
+Evidências em `docs/evidencias/r*.png` desta data. Critérios X2–X6 do plano UX (`.omh/plans/2026-11-16T214929181225Z-*`).
+
+## Resultados
+
+| Lane    | Critério                                   | Resultado                                                                                                                                                                                                                                                            | Evidência                             |
+| ------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| R6      | Home com chips + "Na sua agenda"           | ✅ Chips com `content-desc` no dump; seção vazia instrutiva sem favoritos e com favoritos na sequência                                                                                                                                                               | `r6-home.png`, `r6-na-sua-agenda.png` |
+| R6      | Chip "Grátis" lista só gratuitos           | ✅ **Exato**: app mostrou "94 eventos"; contagem independente via PostgREST de eventos publicados futuros com ≥1 data `gratuito=true` = **94** (de 130 futuros no total)                                                                                             | `r6-chip-gratis.png`                  |
+| R2      | Bloco essencial no primeiro viewport       | ✅ Quando/fim/preço/local/classificação visíveis sem rolagem; `uiautomator dump` com rótulo em cada controle                                                                                                                                                         | `r2-bloco-essencial.png`              |
+| R2      | Fonte 2.0 sem corte do essencial           | ✅⚠️ Data, preço, local, distância e classificação cabem inteiros (terminam em y=2233 < 2400). O botão "Como chegar" inicia visível em y=2253 mas fica parcialmente cortado — com o warning de linking dev (abaixo) desativado em produção ele cabe; reavaliar na M8 | `r2-bloco-fonte2.png`                 |
+| R3      | "Como chegar" abre mapas com destino       | ✅ Google Maps (`com.google.android.apps.maps`) tomou foco com destino carregado (plus code `5CFR+744 Fortaleza` do espaço com coordenada)                                                                                                                           | `r3-como-chegar-maps.png`             |
+| R4      | Permissão só no gesto + diálogo do sistema | ✅ Diálogo nativo apareceu ao tocar o chip "Perto de mim"                                                                                                                                                                                                            | `r4-dialogo-permissao.png`            |
+| R4      | Negada: degrada sem erro                   | ✅ Após "Não permitir", agenda em ordem padrão, sem distância, sem crash. Observação: após a 2ª negação o Android não reexibe o diálogo (comportamento do sistema)                                                                                                   | —                                     |
+| R4/R4.2 | Concedida: distância + ordenação           | ✅ Cartões com distância ("2264,2 km") e ordem crescente (2264,2 → 2270,9 km); botão alterna para "Ordenar: data"; sem coordenada não fabrica valor                                                                                                                  | `r4-ordenado-distancia.png`           |
+| R5      | Compartilhar-convite                       | ✅ Sheet nativa com mensagem completa: chamada "Bora? Olha esse evento:", data+nome, local, ingresso e link da fonte (`mapacultural.secult.ce.gov.br/evento/11109/`)                                                                                                 | `r5-compartilhar-convite.png`         |
+| R6      | Home em fonte 2.0                          | ✅ Chips e seções legíveis, sem corte de texto                                                                                                                                                                                                                       | `r6-home-fonte2.png`                  |
+
+## Achados (não bloqueiam as lanes, viram trabalho posterior)
+
+1. **`undefined` literal nos endereços.** Endereços do seed importado (ex.: "Rua Senador Pompeu, , Centro, Fortaleza, undefined, CE, 60025-000") contêm a string "undefined" — herança da importação (valor JS `undefined` serializado na fonte). Afeta a exibição no detalhe e o fallback textual do "Como chegar". Provável origem: normalização de endereço no importador do Mapa Cultural (`workers/coleta`). Corrigir na fonte de dados, não no app.
+2. **Warning de linking duplicado (dev).** Yellow box "Looks like you have configured linking in multiple places…" apareceu na home em fonte 2.0. Indica dois NavigationContainers/configs de deep link — investigar antes da M8 (pode afetar deep links reais).
+
+## Restaurações de estado do aparelho
+
+- `font_scale` restaurado de 2.0 → 1.0 (valor original lido antes).
+- Permissão de localização: revogada para forçar o diálogo e depois concedida via `pm grant` para o caminho positivo; permanece concedida (estado benigno para o dev client).
