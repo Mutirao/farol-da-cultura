@@ -212,6 +212,15 @@ export function adminViaApi(
   serviceRoleKey: string,
   buscar: typeof fetch = fetch,
 ): AdminApi {
+  const alvo = new URL(base);
+  if (
+    !HOSTS_LOCAIS.has(alvo.hostname) ||
+    !["http:", "https:"].includes(alvo.protocol)
+  ) {
+    throw new Error(
+      "auth_nao_local: provisioning recusa destino Auth não local",
+    );
+  }
   const cabecalhos = {
     apikey: serviceRoleKey,
     authorization: `Bearer ${serviceRoleKey}`,
