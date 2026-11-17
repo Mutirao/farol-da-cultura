@@ -4,8 +4,8 @@ import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   ARQUIVOS_FONTE,
-  MIGRATION_DESTINO,
   gerarBaseline,
+  MIGRATION_DESTINO,
 } from "../gerar-baseline.ts";
 
 const ORIGEM_PADRAO = "/mnt/data/code/farol/raspagem-farol/src/db/migrations";
@@ -16,7 +16,7 @@ const ORIGEM_PADRAO = "/mnt/data/code/farol/raspagem-farol/src/db/migrations";
 function concatenacaoIndependente(origem: string): string {
   return ARQUIVOS_FONTE.map((nome) =>
     readFileSync(join(origem, nome), "utf8").replace(
-      /--\> statement-breakpoint[^\n]*/g,
+      /--> statement-breakpoint[^\n]*/g,
       "",
     ),
   ).join("\n");
