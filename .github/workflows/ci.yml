@@ -35,6 +35,9 @@ jobs:
 
       - run: pnpm biome ci .
 
+      - name: typecheck das ferramentas de migração e provisionamento
+        run: pnpm run check:tooling
+
       - name: turbo typecheck test (afetados no PR)
         if: github.event_name == 'pull_request'
         run: pnpm turbo run typecheck test --affected
