@@ -24,6 +24,11 @@ Evidências em `docs/evidencias/r*.png` desta data. Critérios X2–X6 do plano 
 1. **`undefined` literal nos endereços.** Endereços do seed importado (ex.: "Rua Senador Pompeu, , Centro, Fortaleza, undefined, CE, 60025-000") contêm a string "undefined" — herança da importação (valor JS `undefined` serializado na fonte). Afeta a exibição no detalhe e o fallback textual do "Como chegar". Provável origem: normalização de endereço no importador do Mapa Cultural (`workers/coleta`). Corrigir na fonte de dados, não no app.
 2. **Warning de linking duplicado (dev).** Yellow box "Looks like you have configured linking in multiple places…" apareceu na home em fonte 2.0. Indica dois NavigationContainers/configs de deep link — investigar antes da M8 (pode afetar deep links reais).
 
+## Ciclo 2 — correções (16/11/2026, mesma sessão do loop)
+
+1. **`undefined` nos endereços — corrigido na fonte.** `limparEndereco()` em `workers/coleta/src/mapaCultural.ts` remove tokens literais `undefined` e vírgulas vazias do endereço que o Mapa Cultural entrega pronto (ex.: "Rua Senador Pompeu, , Centro, Fortaleza, undefined, CE" → "Rua Senador Pompeu, Centro, Fortaleza, CE"; só "undefined" → null). TDD: teste novo em `workers/coleta/test/mapaCultural.test.ts` (RED → GREEN), 31/31 verdes, typecheck OK, biome OK. **Limite:** dados já importados no banco local mantêm as strings antigas — limpar exige novo import ou migration de dados; o reset local não foi autorizado (demonstração com dados reais).
+2. **Warning de linking duplicado — upstream, sem ação no app.** O aviso nasce no `ContextNavigator` do próprio expo-router 58.0.31 (`ExpoRoot.js`), só em dev (`NODE_ENV !== 'production'`), e corresponde à classe de issues já aceitas no expo (ex.: expo/expo#41252, mudança de configuração do sistema). O app tem uma única árvore de navegação (Stack raiz + grupo `(tabs)`); deep links foram verificados funcionando na F0-07. Monitorar upgrades do expo-router; não contornar.
+
 ## Restaurações de estado do aparelho
 
 - `font_scale` restaurado de 2.0 → 1.0 (valor original lido antes).

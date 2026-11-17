@@ -83,6 +83,61 @@ describe("normalizar", () => {
     });
   });
 
+  it("remove o literal 'undefined' e vírgulas vazias do endereço da fonte", () => {
+    const { lote } = normalizar(
+      [
+        linha({
+          space: {
+            id: 12,
+            name: "Teatro",
+            shortDescription: null,
+            endereco:
+              "Rua Senador Pompeu, , Centro, Fortaleza, undefined, CE, 60025-000",
+            En_Municipio: "Fortaleza",
+            acessibilidade_fisica: null,
+            location: null,
+          },
+        }),
+        linha({
+          event_id: 11,
+          occurrence_id: 78,
+          space: {
+            id: 13,
+            name: "Galeria",
+            shortDescription: null,
+            endereco: "undefined",
+            En_Municipio: "Fortaleza",
+            acessibilidade_fisica: null,
+            location: null,
+          },
+        }),
+      ],
+      JANELA,
+    );
+    expect(lote.espacos).toEqual([
+      {
+        id_externo: "12",
+        nome: "Teatro",
+        descricao: null,
+        endereco: "Rua Senador Pompeu, Centro, Fortaleza, CE, 60025-000",
+        municipio: "Fortaleza",
+        latitude: null,
+        longitude: null,
+        acessibilidade_fisica: [],
+      },
+      {
+        id_externo: "13",
+        nome: "Galeria",
+        descricao: null,
+        endereco: null,
+        municipio: "Fortaleza",
+        latitude: null,
+        longitude: null,
+        acessibilidade_fisica: [],
+      },
+    ]);
+  });
+
   it("junta as datas do mesmo evento e não repete o espaço", () => {
     const { lote } = normalizar(
       [linha(), linha({ starts_on: "2030-01-17" })],

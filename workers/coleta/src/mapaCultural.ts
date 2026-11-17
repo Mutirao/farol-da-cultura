@@ -174,6 +174,20 @@ export async function buscarLinhas(
 
 const texto = (valor: string | null | undefined) => valor?.trim() || null;
 
+/**
+ * Limpa o endereço que vem pronto da fonte. O Mapa Cultural serializa campos
+ * ausentes como o literal "undefined" (ex.: "Rua X, , Centro, Fortaleza,
+ * undefined, CE"): remove esses tokens e as vírgulas vazias que sobram.
+ * Endereço sem nenhum conteúdo útil vira null.
+ */
+const limparEndereco = (valor: string | null | undefined) => {
+  const tokens = (valor ?? "")
+    .split(",")
+    .map((token) => token.trim())
+    .filter((token) => token !== "" && !/^undefined$/i.test(token));
+  return tokens.length > 0 ? tokens.join(", ") : null;
+};
+
 const lista = (itens: string[] | null | undefined) => [
   ...new Set((itens ?? []).map((item) => item.trim()).filter(Boolean)),
 ];
@@ -286,7 +300,7 @@ export function normalizar(
         id_externo: espacoId,
         nome: nomeDoEspaco,
         descricao: texto(linha.space.shortDescription),
-        endereco: texto(linha.space.endereco),
+        endereco: limparEndereco(linha.space.endereco),
         municipio: texto(linha.space.En_Municipio),
         ...coordenadas(linha.space.location),
         acessibilidade_fisica: lista(
