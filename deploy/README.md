@@ -14,11 +14,9 @@ cluster. Este diretório implementa o modelo concreto de hospedagem web
 (painel + app); o worker de coleta não está aqui (ver "Relação com
 `infra/k8s/`" abaixo).
 
-Nesta etapa só foi executado `docker build`/`docker run` local,
-`skaffold render`/`skaffold build --push=false` e
-`kubectl kustomize ... | kubectl apply --dry-run=client`. Nenhum
-`skaffold run`/`dev`/`deploy`, `kubectl apply` real, push de imagem ou
-criação de cluster.
+A etapa S0.8 validou o build, a execução local da imagem e os manifests.
+A [prévia interna](#prévia-interna-no-k3s) é uma verificação posterior e
+não equivale a um deploy de produção.
 
 ## Build
 
@@ -76,6 +74,28 @@ skaffold render
 Nenhum dos dois comandos cria cluster, faz deploy real ou dá push de
 imagem.
 
+## Prévia interna no k3s
+
+Verificada em 19/11/2026 no contexto `default`: `Deployment/farol-web`
+disponível (1/1) e `Service/farol-web` ClusterIP em `farol-unificado-dev`,
+a partir de `27a238f`. A imagem `farol-web:27a238fba77a` foi importada no
+nó `blessed`; o pod está fixado nesse nó com `imagePullPolicy: Never`.
+Ainda não há imagem em registry para distribuição entre nós.
+
+A prévia não tem Ingress, CronJobs nem credenciais. Foi compilada sem
+configuração Supabase; prova a hospedagem, não o login, a curadoria ou a
+agenda hospedada. O namespace legado `farol` não recebeu alterações.
+
+```bash
+kubectl --context default -n farol-unificado-dev port-forward svc/farol-web 18480:80
+# Em outro terminal:
+curl -f -H 'Host: painel.farol.local' http://127.0.0.1:18480/eventos/123
+curl -f -H 'Host: app.farol.local' http://127.0.0.1:18480/evento/1
+```
+
+No smoke, os dois hosts responderam 200 na raiz, em rota profunda e no
+bundle JS. Um host desconhecido respondeu 404.
+
 ## Relação com `infra/k8s/` (spike anterior)
 
 `infra/k8s/` + a versão anterior do `skaffold.yaml` (commits
@@ -107,7 +127,8 @@ arquivo de configuração.
   versionada) — gate humano de credencial, igual ao spike anterior.
 - DNS/TLS reais para os hosts de produção (os `*.farol.local` aqui são só
   placeholder para `kind`/teste local).
-- `ingressClassName` por cluster, Secrets de ambiente/credenciais e o
-  primeiro `kubectl apply`/`skaffold run` contra um cluster de verdade.
+- Classe de Ingress e configuração pública do Supabase hospedado para o
+  build operacional; confirmar schema, autenticação e rollout antes da
+  exposição pública.
 - Reconciliar o worker de coleta num `skaffold.yaml` único, se for essa a
   direção (ver seção anterior).

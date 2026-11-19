@@ -41,7 +41,7 @@ cada frente que se liga à seguinte; ver [roadmap](docs/ROADMAP.md).
 | F4 Envio/incorporação  | painel + RPCs         | painel registra a incorporação e mostra o estado do vínculo; `workers/coleta` confere ID e conteúdo na instância e confirma                                                                             | ok (S0.4, S0.6) |
 | F5 Sincronização       | `workers/coleta`      | importador da API do Mapa Cultural com `MAPA_CULTURAL_BASE` só local; instância de teste em `scripts/instancia-teste`; agendamento desligado                                                            | ok (S0.5)       |
 | F6 App público         | `apps/app`            | agenda, filtros, detalhes e favoritos; Android, iOS e web habilitados em `app.config.ts`, com favoritos próprios no navegador; iOS sem build (H3)                                                       | ok (S0.7)       |
-| F7 Hospedagem/operação | `.github/`, `deploy/` | CI de lint, tipos, testes, pgTAP, export do app e e2e; imagem estática única para painel e app web, manifests k8s via Skaffold, sem deploy                                                              | ok (S0.8)       |
+| F7 Hospedagem/operação | `.github/`, `deploy/` | CI de lint, tipos, testes, pgTAP, export do app e e2e; imagem estática única para painel e app web; [prévia interna no k3s](deploy/README.md#prévia-interna-no-k3s), sem Ingress público                | ok (S0.8)       |
 
 A Fase 0 passou no teste ponta a ponta da corrente (S0.9, `pnpm e2e:esqueleto`)
 e na verificação independente (S0.10); ver
