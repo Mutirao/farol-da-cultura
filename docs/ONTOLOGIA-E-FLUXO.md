@@ -115,4 +115,4 @@ O prazo de revalidação e a política para indisponibilidade, ocultação ou re
 - **Workers:** múltiplos conectores e scrapers com limites e agendamento por configuração. Isolar Chromium do importador leve e dos bundles de app/painel; múltiplos scrapers não exigem microserviços ou um framework por fonte.
 - **Segurança:** dados de preparação, evidências restritas e credenciais não ficam públicos. RLS e grants explícitos, papéis de servidor nos workers e autorização de operador no backend; nunca credencial privilegiada no aplicativo ou no painel.
 
-O alvo web ainda não está habilitado em `apps/app/app.config.ts`; o painel existente é uma prova de composição; apenas o importador Ceará existe em `workers/`. Esses limites observados não reduzem o escopo aprovado e não podem ser descritos como funcionalidades já entregues.
+Para distinguir as capacidades verificadas dos objetivos de produto, consulte o [estado por frente](../README.md#estado-por-frente).

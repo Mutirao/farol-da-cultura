@@ -1,14 +1,48 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { supabaseDataProvider } from "ra-supabase";
+import { supabaseDataProvider, supabaseHttpClient } from "ra-supabase";
 import type { DataProvider } from "react-admin";
 
-// Resource "events": PostgREST lê public.events pela RLS/GRANT de
-// 20261117000200_curadoria_acesso.sql (curador ativo vê tudo; os demais, 0
-// linhas). Escrita de curadoria passa pela RPC curar_evento, nunca por
-// PATCH direto (authenticated não tem UPDATE na tabela).
+// GRANT de coluna em 20261117000200_curadoria_acesso.sql, nunca o CSV base64.
+export const colunasExportacoes = [
+  "id",
+  "checksum_sha256",
+  "schema_version",
+  "row_count",
+  "created_by",
+  "status",
+  "created_at",
+  "updated_at",
+];
+
 export function criarDataProvider(
   instanceUrl: string,
   supabaseClient: SupabaseClient,
 ): DataProvider {
-  return supabaseDataProvider({ instanceUrl, supabaseClient });
+  const http = supabaseHttpClient({ supabaseClient });
+  return supabaseDataProvider({
+    instanceUrl,
+    supabaseClient,
+    httpClient: (endereco, options) => {
+      const url = new URL(endereco);
+      if (url.pathname.endsWith("/exports")) {
+        // Vale para List, Show, referências e até callers sem meta.columns.
+        url.searchParams.set("select", colunasExportacoes.join(","));
+      }
+      if (url.pathname.endsWith("/events")) {
+        // qs do provider serializa dois limites como starts_at[0]/[1];
+        // PostgREST exige a mesma coluna repetida, sem índices.
+        for (const [chave, valor] of [...url.searchParams]) {
+          if (/^starts_at\[\d+\]$/.test(chave)) {
+            url.searchParams.append("starts_at", valor);
+            url.searchParams.delete(chave);
+          }
+        }
+        const ordem = url.searchParams.get("order");
+        if (ordem && !/(^|,)id(\.|,|$)/.test(ordem)) {
+          url.searchParams.set("order", `${ordem},id.asc`);
+        }
+      }
+      return http(url.toString(), options);
+    },
+  });
 }

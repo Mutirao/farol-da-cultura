@@ -1,15 +1,16 @@
 # Painel — curadoria mínima (S0.4)
 
-Painel operacional mínimo: login de curador, lista/detalhe dos eventos
-coletados, aprovar/rejeitar, exportação mínima e registro de incorporação
-com o estado do vínculo. Supera a prova de composição U0.3 (histórico em
+Painel operacional: login de curador, lista/detalhe dos eventos coletados,
+aprovação e rejeição individual ou em lote, exportação mínima e registro de
+incorporação.
+Supera a prova de composição U0.3 (histórico em
 [relatório U0.3](../../docs/relatorios/unificacao-painel-compatibilidade.md)).
 D6 revisada pelo usuário em 2026-11-16; ver [ADR-0008](../../docs/adr/0008-plataforma-unificada.md)
 e [ADR-0009](../../docs/adr/0009-ecossistema-institucional.md).
 
-**Curadoria nunca publica direto na agenda.** Aprovar não envia; exportar não
-comprova incorporação; registrar só marca o vínculo como `registrado`, até a
-confirmação (service role, fora do painel — ver S0.2/S0.6).
+**Curadoria nunca publica direto na agenda.** Aprovar não envia nem publica;
+exportar não comprova incorporação. A atualização da agenda pública só lê
+eventos já disponíveis na API institucional.
 
 ## Como rodar localmente
 
@@ -44,6 +45,11 @@ pnpm --filter @farol/painel test        # vitest (unitários; não precisa do Su
 ```
 
 ## Como logar localmente
+
+Com o Supabase local iniciado, use `pnpm painel:local` na raiz para
+provisionar o curador de desenvolvimento, carregar exemplos e obter um código
+de login local. Veja o [roteiro do ambiente de demonstração](../../scripts/dev/README.md).
+Não aponte esse roteiro para uma base com dados reais.
 
 O login é sem senha: a tela pede um e-mail de curador, chama
 `supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } })`
@@ -92,21 +98,36 @@ do e-mail de verdade; nada no painel muda.
 
 ## Recursos
 
+- **Curadoria / Operação**: menu agrupado no layout padrão do React-admin.
+  Além de eventos, **espaços**, **fontes de eventos**, **execuções de jobs** e
+  **exportações** têm lista e detalhe somente leitura, sem criar/editar/excluir.
+  Exportações consultam somente os metadados autorizados pelo GRANT de coluna;
+  `csv_content_base64` nunca é solicitado.
+- **Lista de eventos**: filtros por curadoria, fonte, título (busca sem distinguir
+  maiúsculas/minúsculas) e intervalo de início, incluindo os dias escolhidos no
+  fuso `America/Fortaleza`. Ordenação inicial por início crescente, com ID como
+  desempate também nas demais ordenações; 50 itens por página, opções 25/50/100.
+  Filtros, ordenação e página permanecem na URL. HTML coletado é exibido como
+  texto, sem renderizar a marcação da fonte.
+- **Mensagens pt-BR**: centralizadas em `src/mensagens.ts`, sem importar o pacote
+  mobile `@farol/i18n`.
+
 - **Eventos coletados** (`public.events`, lista e detalhe): só as colunas que
   a RLS de `20261117000200_curadoria_acesso.sql` libera para `authenticated`
   com curador ativo (ninguém mais vê nenhuma linha).
 - **Aprovar / Rejeitar**: chama `curar_evento(p_event_id, p_version, p_status)`
   (`20261117000700_curadoria_minima.sql`). Sempre envia a `version` lida pelo
-  painel; a RPC recusa (`23505`) se divergir de outra coleta ou curadoria
-  concorrente. Não altera `export_*`, `space_match_*` nem `mapas_import_*`,
-  nunca escreve na agenda pública.
-- **Vínculo institucional** (coluna na lista e card no detalhe): lê
-  `public.vinculos_institucionais` (contrato do S0.2) por `event_id`; evento
-  sem linha aparece como "Sem vínculo institucional".
-- **Registrar incorporação**: só aparece com o evento `approved`; chama
-  `registrar_incorporacao(p_event_id, p_instancia, p_base, p_mapas_id)`
-  (S0.2). O estado fica `registrado` até a confirmação (service role, fora
-  do painel).
+  painel; a RPC recusa (`23505`) se divergir da versão atual do evento.
+  Não altera `export_*`, `space_match_*` nem `mapas_import_*` e nunca escreve
+  na agenda pública.
+- **Aprovar / Rejeitar selecionados**: a seleção vale para a página atual e é
+  limpa ao mudar de página, filtros ou ordenação. O painel confirma com o
+  curador e envia os IDs e versões à RPC `curar_eventos`, que informa quantos
+  eventos foram alterados, estavam em conflito ou não foram encontrados.
+- **Vínculo institucional** (lista e detalhe): lê
+  `public.vinculos_institucionais` (contrato do S0.2) por `event_id`.
+  O formulário registra o destino de um evento aprovado; o vínculo fica
+  `registrado` até a confirmação pela API institucional, feita fora do painel.
 - **Exportar aprovados (CSV/JSON mínimo)**: botão na lista, busca
   `curation_status=approved` direto (independe da paginação/filtro atual da
   tela) e gera o arquivo no navegador. Rotulado como exportação mínima — não
@@ -118,8 +139,8 @@ do e-mail de verdade; nada no painel muda.
   projeto); textos de infraestrutura do próprio React-admin (paginação,
   "Please login to continue" antes do primeiro login) continuam em inglês —
   não foi feita localização completa do framework.
-- Sem papéis/permissões diferenciadas entre curadores, sem paginação além do
-  padrão do React-admin, sem edição de outros campos do evento.
+- Sem papéis/permissões diferenciadas entre curadores e sem edição de outros
+  campos do evento. Paginação usa o componente padrão do React-admin.
 - `useVinculo`/`useVinculos` buscam o vínculo institucional fora do data
   provider (consulta direta via `@supabase/supabase-js`); atualizam na
   aprovação/registro desta sessão, mas não há realtime entre abas.

@@ -37,7 +37,7 @@ cada frente que se liga à seguinte; ver [roadmap](docs/ROADMAP.md).
 | ---------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
 | F1 Dados               | `supabase/`           | agenda pública com RLS, baseline da coleta legada, curadoria, vínculo coletado ↔ institucional (`registrar_incorporacao`/`confirmar_incorporacao`); pgTAP cobrindo agenda, curadoria, vínculo e leitura | ok (S0.2)       |
 | F2 Coleta/scrapers     | `workers/sympla`      | `@farol/sympla`: lê detalhes locais e grava via `registrar_coleta_minima`; sem descoberta online, paginação ou cron                                                                                     | ok (S0.3)       |
-| F3 Painel              | `apps/painel`         | React-admin + ra-supabase com login por código, lista de coletados, aprovar e exportar CSV/JSON                                                                                                         | ok (S0.4)       |
+| F3 Painel              | `apps/painel`         | React-admin + ra-supabase com login por código, curadoria individual e em lote, listas operacionais e exportação CSV/JSON mínima                                                                        | ok (S0.4)       |
 | F4 Envio/incorporação  | painel + RPCs         | painel registra a incorporação e mostra o estado do vínculo; `workers/coleta` confere ID e conteúdo na instância e confirma                                                                             | ok (S0.4, S0.6) |
 | F5 Sincronização       | `workers/coleta`      | importador da API do Mapa Cultural com `MAPA_CULTURAL_BASE` só local; instância de teste em `scripts/instancia-teste`; agendamento desligado                                                            | ok (S0.5)       |
 | F6 App público         | `apps/app`            | agenda, filtros, detalhes e favoritos; Android, iOS e web habilitados em `app.config.ts`, com favoritos próprios no navegador; iOS sem build (H3)                                                       | ok (S0.7)       |
@@ -53,7 +53,7 @@ abertas registradas no relatório:
 - falta de unicidade em `(base, tipo_entidade, mapas_id)` em
   `private.vinculos_institucionais` (U1.5);
 - `deploy/k8s/web.yaml` sem `ingressClassName` nem TLS (gate humano);
-- 13 avisos de texto fixo sem i18n no painel.
+- Localização incompleta do painel (componentes do React-admin e textos fixos remanescentes).
 
 ## Documentação
 
@@ -63,9 +63,6 @@ abertas registradas no relatório:
 - [Ontologia e fluxo institucional](docs/ONTOLOGIA-E-FLUXO.md): glossário único do
   domínio, proveniência, instâncias/bases/cidades e etapas do fluxo.
 - [Plano unificado](docs/PLANO-UNIFICADO-2026-11-16.md): contratos, tarefas U0–U8 e gates.
-- [Plano dos crawlers](docs/plans/2026-11-19-gitnexus-plan-crawler-quatro-fontes.md):
-  pesquisa e etapas U2 na ordem **Sympla → Outgo → Ingresse → Bilheteria Digital**.
-  Implementação e ativação estão pendentes.
 - [ADR-0009](docs/adr/0009-ecossistema-institucional.md): decisões aprovadas em
   2026-11-17 e relação com os ADRs anteriores.
 - [Setup da máquina](docs/setup-maquina.md): versões de Node, pnpm, eas-cli e gitleaks.

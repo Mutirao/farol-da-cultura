@@ -1,7 +1,8 @@
 import DownloadIcon from "@mui/icons-material/Download";
-import { Button, Stack } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 import { useState } from "react";
 import { useDataProvider, useNotify } from "react-admin";
+import { m } from "../mensagens";
 import {
   type EventoColetado,
   gerarCsvAprovados,
@@ -50,28 +51,45 @@ export function ExportarAprovadosButton() {
           "application/json",
         );
       }
-      notify(
-        "Exportação mínima gerada — não é o CSV compatível com o Mapas Culturais.",
-        { type: "info" },
-      );
+      notify(m.exportar.gerada, { type: "info" });
     } catch {
-      notify("Falha ao gerar a exportação mínima.", { type: "error" });
+      notify(m.exportar.falha, { type: "error" });
     } finally {
       setCarregando(false);
     }
   };
 
   return (
-    <Stack direction="row" spacing={1}>
+    <Stack
+      direction="row"
+      spacing={1}
+      useFlexGap
+      sx={{ minWidth: 0, flexWrap: "wrap", justifyContent: "flex-end" }}
+    >
       <Button
+        aria-label={m.exportar.csv}
         startIcon={<DownloadIcon />}
         disabled={carregando}
         onClick={() => exportar("csv")}
       >
-        Exportar aprovados (CSV mínimo)
+        <Box component="span" sx={{ display: { xs: "inline", md: "none" } }}>
+          {m.exportar.csvCurto}
+        </Box>
+        <Box component="span" sx={{ display: { xs: "none", md: "inline" } }}>
+          {m.exportar.csv}
+        </Box>
       </Button>
-      <Button disabled={carregando} onClick={() => exportar("json")}>
-        Exportar aprovados (JSON mínimo)
+      <Button
+        aria-label={m.exportar.json}
+        disabled={carregando}
+        onClick={() => exportar("json")}
+      >
+        <Box component="span" sx={{ display: { xs: "inline", md: "none" } }}>
+          {m.exportar.jsonCurto}
+        </Box>
+        <Box component="span" sx={{ display: { xs: "none", md: "inline" } }}>
+          {m.exportar.json}
+        </Box>
       </Button>
     </Stack>
   );

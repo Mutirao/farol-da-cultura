@@ -47,9 +47,9 @@ gerindo só infraestrutura de apoio).
   (Secret criado fora deste repositório, nunca commitado — mesma convenção
   do `ghcr-cred` em ns `farol`), e `Ingress` em `painel.farol.app`. CronJob
   também nasce `suspend: true`.
-- `skaffold.yaml` (raiz): profile padrão = dev (`build.local.push: false`,
-  manifestos em `infra/k8s/dev`); profile `prod` troca para as imagens
-  `ghcr.io/mutirao/...` com `push: true` e manifestos em `infra/k8s/prod`.
+- O Skaffold do spike usava `infra/k8s/dev` por padrão e `infra/k8s/prod` no
+  profile `prod`. O `skaffold.yaml` atual usa `deploy/k8s/`; veja o roteiro
+  da [hospedagem do painel e do app web](../../deploy/README.md).
 
 ## Validado nesta etapa
 
@@ -69,48 +69,45 @@ gerindo só infraestrutura de apoio).
 
 ## Evidência do legado — leitura apenas
 
-O release legado vive no namespace `farol` (deployment `farol`, CNPG
-`farol-postgres`, CronJobs `farol-collect-web` (03:00), `farol-match-events` (04:00)
-e `farol-synchronize-spaces` (02:00), ingress `raspagem.mutirao.org.br` — classe
-`traefik`) e permanece lá sem ser tocado. O trabalho novo fica em
-`farol-unificado{,-dev}` e **lê** o legado de fora, pelo DNS do cluster.
+O legado permanece no namespace `farol`, sem alterações. O Farol novo mantém
+namespaces próprios e usa o legado **somente como fonte de evidência**. A
+conectividade entre namespaces não foi testada e depende das políticas do cluster.
 
-- Namespace é a fronteira de Secret no Kubernetes. Dividir `farol` com o legado
-  só para enxergá-lo daria ao deployment novo o mesmo escopo de credenciais
-  (Supabase, SMTP, Postgres antigo). A leitura é remota por isso, não por falta
-  de acesso: não há `NetworkPolicy` neste repositório, então os serviços de
-  `farol` já respondem a partir de `farol-unificado`.
-- **Um escritor por escopo.** Nenhum manifesto deste repositório escreve no
-  `farol-postgres` nem dispara os CronJobs do legado; a curadoria nova escreve
-  só no Supabase.
+No contexto local `default`, a leitura de 19/11/2026 confirmou o deployment
+`farol`, os serviços Postgres `farol-postgres-r`/`-ro`/`-rw` e o ingress
+`raspagem.mutirao.org.br` (classe `traefik`). Os CronJobs são
+`farol-synchronize-spaces` às 02:00, `farol-collect-web` às 03:00 e
+`farol-match-events` às 04:00 (`America/Fortaleza`).
+
+**Um escritor por escopo:** não reutilizar credenciais do legado, escrever no
+`farol-postgres` ou disparar seus CronJobs. A curadoria nova escreve no Supabase.
 
 Leituras que destravam pendências:
 
-| Pendência                         | O que coletar no legado                                                                           |
-| --------------------------------- | ------------------------------------------------------------------------------------------------- |
-| U4.1 — CSV de 29 colunas          | Bytes e hash de uma exportação real, para virar fixture de `packages/compat-csv`                  |
-| U4.4 — matching e sync de espaços | Logs de `match-events` e `synchronize-spaces`: frequência, falhas, saída                          |
-| U6.1/U6.2 — dados reais           | Restore read-only do `farol-postgres` para um banco local isolado; nunca no banco de demonstração |
+| Pendência                                  | Evidência a obter                                                                                                                  |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| U4.1 — CSV de 29 colunas                   | Comparação dos bytes e do hash de um export autorizado; usar dados sintéticos ou sanitizados nas fixtures versionadas.             |
+| U4.4 — matching e sincronização de espaços | Estado dos Jobs e logs disponíveis de `farol-match-events` e `farol-synchronize-spaces`.                                           |
+| U6.1/U6.2 — dados reais                    | Com autorização explícita, ler a origem com papel somente leitura e restaurar só em banco local isolado, nunca no de demonstração. |
 
-Forma dos comandos, verificados no cluster em 19/11/2026 (serviços do CNPG:
-`farol-postgres-rw`/`-ro`/`-r`):
+Para identificar o Job antes de consultar logs, no contexto autorizado:
 
 ```bash
-kubectl -n farol logs -l job-name=<cronjob>-<timestamp>      # logs de uma execução
-kubectl -n farol port-forward svc/farol-postgres-ro 55432:5432  # só leitura
+kubectl --context default -n farol get jobs --sort-by=.metadata.creationTimestamp
+kubectl --context default -n farol logs job/NOME_DO_JOB
 ```
 
-Os CronJobs não têm `startingDeadlineSeconds`: **disparo perdido não é
-recuperado**, e o control-plane é uma máquina de desktop, não um servidor
-dedicado. Um ciclo que caia em horário com a máquina desligada simplesmente não
-roda e não gera evento. Não tratar `lastScheduleTime` antigo como falha da
-coleta sem antes distinguir isso de uma retirada institucional (ver
-[ontologia §6](../docs/ONTOLOGIA-E-FLUXO.md)).
+A lacuna observada em 18/11/2026 foi atribuída pelo responsável à
+indisponibilidade do cluster. `lastScheduleTime` indica agendamento, não
+sucesso. A ausência de `startingDeadlineSeconds` não impede a retomada de
+execuções perdidas ([semântica de CronJobs](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)).
+Uma falha de agendamento ou consulta não comprova retirada institucional
+([ontologia §6](../../docs/ONTOLOGIA-E-FLUXO.md#6-sincronização-e-cobertura)).
 
-A captura de evidência não é gate humano. O restore de dados reais continua
-dependente de autorização e de destino (U6.1/U6.2).
+## Pendências registradas no spike
 
-## Pendências explícitas (não resolvidas aqui)
+Histórico do teste. Para planejar a hospedagem atual, use o
+[roteiro de `deploy/`](../../deploy/README.md), não o antigo profile `prod`.
 
 - `docker login ghcr.io` + primeiro push real das imagens — gate humano
   (credencial).

@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useLogin, useNotify } from "react-admin";
+import { m } from "./mensagens";
 import { supabase } from "./supabaseClient";
 
 // Login de curador sem senha: signInWithOtp com shouldCreateUser:false pede
@@ -33,7 +34,7 @@ export function LoginPage() {
         options: { shouldCreateUser: false },
       });
       if (error) throw error;
-      notify("Código solicitado. Confira o e-mail do curador.", {
+      notify(m.login.solicitado, {
         type: "info",
       });
     } catch {
@@ -41,10 +42,7 @@ export function LoginPage() {
       // parado no local, SMTP fora do ar em produção): a etapa seguinte
       // sempre abre, e o curador com código provisionado localmente segue o
       // roteiro do README em vez de travar aqui.
-      notify(
-        "Não foi possível confirmar o envio agora. Se você tem um código provisionado localmente, informe-o a seguir.",
-        { type: "warning" },
-      );
+      notify(m.login.falhaEnvio, { type: "warning" });
     } finally {
       setCodigoSolicitado(true);
       setEnviando(false);
@@ -56,7 +54,7 @@ export function LoginPage() {
     try {
       await login({ email, token });
     } catch {
-      notify("Código inválido ou expirado.", { type: "error" });
+      notify(m.login.invalido, { type: "error" });
     } finally {
       setEnviando(false);
     }
@@ -69,13 +67,10 @@ export function LoginPage() {
       <Card sx={{ maxWidth: 420, width: "100%" }}>
         <CardContent>
           <Stack spacing={2}>
-            <Typography variant="h5">Farol — login do curador</Typography>
-            <Typography variant="body2">
-              Informe o e-mail do curador para receber um código de acesso.
-              Cadastro público desabilitado: só curador já provisionado entra.
-            </Typography>
+            <Typography variant="h5">{m.login.titulo}</Typography>
+            <Typography variant="body2">{m.login.instrucoes}</Typography>
             <TextField
-              label="E-mail do curador"
+              label={m.login.email}
               type="email"
               value={email}
               onChange={(evento) => setEmail(evento.target.value)}
@@ -88,12 +83,12 @@ export function LoginPage() {
                 disabled={!email || enviando}
                 onClick={solicitarCodigo}
               >
-                Enviar código
+                {m.login.enviar}
               </Button>
             ) : (
               <>
                 <TextField
-                  label="Código recebido"
+                  label={m.login.codigo}
                   value={token}
                   onChange={(evento) => setToken(evento.target.value)}
                   autoFocus
@@ -103,7 +98,7 @@ export function LoginPage() {
                   disabled={!token || enviando}
                   onClick={confirmarCodigo}
                 >
-                  Confirmar código
+                  {m.login.confirmar}
                 </Button>
                 <Button
                   variant="text"
@@ -113,7 +108,7 @@ export function LoginPage() {
                     setToken("");
                   }}
                 >
-                  Usar outro e-mail
+                  {m.login.outroEmail}
                 </Button>
               </>
             )}
