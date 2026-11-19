@@ -48,6 +48,20 @@ pnpm --filter @farol/coleta importar
 A saída é uma linha de JSON só com contagens: linhas recebidas, rejeitadas por motivo, e o que
 foi criado, alterado e removido. `pnpm supabase db reset` volta o banco local ao seed.
 
+## Confirmar incorporações
+
+`pnpm --filter @farol/coleta confirmar` (mesmas `SUPABASE_URL` e `SUPABASE_SECRET_KEY`) lê os
+vínculos `registrado` em `public.vinculos_institucionais`, busca cada ID no Mapas em
+`/api/event/find` da instância e compara título (sem acento, caixa ou espaços extras) e início
+(minuto, em America/Fortaleza) com o evento coletado em `public.events`. Grava o resultado com
+`public.confirmar_incorporacao`: `confirmado` se os dois conferem, `divergente` se não. ID que a
+instância não devolve continua `registrado`, sem chamada, e só entra na contagem `ausentes`; o
+mesmo vale para vínculo de outra base, ID não numérico ou evento sem início. Todas as leituras na
+instância acontecem antes da primeira gravação: resposta fora do formato encerra sem confirmar
+nada. `MAPA_CULTURAL_BASE` segue a mesma regra da importação (só `127.0.0.1`/`localhost`, ver
+[instância de teste](../../scripts/instancia-teste/README.md)). A saída é uma linha de JSON só
+com contagens. Não rode contra o banco local de demonstração.
+
 ## Testes
 
 ```bash

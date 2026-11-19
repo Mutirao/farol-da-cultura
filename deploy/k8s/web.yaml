@@ -1,0 +1,117 @@
+# deploy/k8s/web.yaml — hospedagem estática única (S0.8): painel
+# administrativo + export web do app, mesma imagem (deploy/Dockerfile),
+# dois hosts virtuais (ver deploy/nginx.conf). Sem namespace fixo: aplique
+# com `kubectl apply -n <ns> ...` ou um overlay de kustomize próprio.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farol-web
+  labels:
+    app.kubernetes.io/name: farol-web
+    app.kubernetes.io/part-of: farol-da-cultura
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: farol-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: farol-web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      containers:
+        - name: farol-web
+          image: farol-web
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          # Probe com Host explícito: sem isso a requisição cai no bloco
+          # default_server do nginx.conf (host desconhecido) e dá 404.
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: painel.farol.local
+            initialDelaySeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: painel.farol.local
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache-nginx
+              mountPath: /var/cache/nginx
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: cache-nginx
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farol-web
+  labels:
+    app.kubernetes.io/name: farol-web
+spec:
+  selector:
+    app.kubernetes.io/name: farol-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# ingressClassName fica sem valor fixo: depende do controller do cluster
+# (ex.: "nginx" num kind com o addon ingress-nginx). Hosts são placeholder
+# para teste local/kind, não domínio real.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: farol-web
+  labels:
+    app.kubernetes.io/name: farol-web
+spec:
+  rules:
+    - host: painel.farol.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: farol-web
+                port:
+                  name: http
+    - host: app.farol.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: farol-web
+                port:
+                  name: http

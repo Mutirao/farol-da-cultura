@@ -3,27 +3,27 @@ kind: Config
 metadata:
   name: farol-da-cultura
 
-# Default = dev: imagens locais, sem push, manifestos em infra/k8s/dev
-# (namespace farol-unificado-dev). `-p prod` = ghcr.io/mutirao, push: true
-# (precisa `docker login ghcr.io` antes), manifestos em infra/k8s/prod
-# (namespace farol-unificado, distinto do legado farol/farol-dev do Helm
-# release raspagem-farol — convivem sem colidir). Ver infra/k8s/README.md
-# para decisões (16-17/11/2026) e pendências.
+# Hospedagem estática única (S0.8): uma imagem (deploy/Dockerfile) serve o
+# painel administrativo (apps/painel) e o export web do app público
+# (apps/app), distinguidos por Host em deploy/nginx.conf — ver
+# deploy/README.md para o roteiro completo e as decisões.
 #
-# Nesta etapa só foram executados `build`, `render --offline --digest-
-# source=local` e `diagnose`, nos dois profiles — nenhum `skaffold run`/
-# `dev`/`deploy` nem push real a ghcr.io, nem `kubectl apply` contra o
-# cluster compartilhado.
+# Nesta etapa só foram executados `skaffold build --push=false`,
+# `skaffold render --offline --digest-source=local` e `skaffold diagnose` —
+# nenhum `skaffold run`/`dev`/`deploy`, push real de imagem ou criação de
+# cluster.
+#
+# Fora deste arquivo (SCOPE do S0.8 é deploy/**, skaffold.yaml e
+# .dockerignore): o worker de coleta (workers/coleta/Dockerfile) e o spike
+# anterior só do painel (apps/painel/Dockerfile, infra/k8s/**) não são
+# construídos/implantados por este skaffold.yaml. Ver "Relação com
+# infra/k8s/" em deploy/README.md.
 build:
   artifacts:
-    - image: farol-da-cultura-painel
+    - image: farol-web
       context: .
       docker:
-        dockerfile: apps/painel/Dockerfile
-    - image: farol-da-cultura-coleta
-      context: .
-      docker:
-        dockerfile: workers/coleta/Dockerfile
+        dockerfile: deploy/Dockerfile
   local:
     push: false
     useBuildkit: true
@@ -31,29 +31,7 @@ build:
 manifests:
   kustomize:
     paths:
-      - infra/k8s/dev
+      - deploy/k8s
 
 deploy:
   kubectl: {}
-
-profiles:
-  - name: prod
-    build:
-      artifacts:
-        - image: ghcr.io/mutirao/farol-da-cultura-painel
-          context: .
-          docker:
-            dockerfile: apps/painel/Dockerfile
-        - image: ghcr.io/mutirao/farol-da-cultura-coleta
-          context: .
-          docker:
-            dockerfile: workers/coleta/Dockerfile
-      local:
-        push: true
-        useBuildkit: true
-    manifests:
-      kustomize:
-        paths:
-          - infra/k8s/prod
-    deploy:
-      kubectl: {}

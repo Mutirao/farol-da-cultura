@@ -4,6 +4,8 @@ import { z } from "zod";
 export const FONTE = "mapa-cultural-ce";
 
 const BASE = "https://mapacultural.secult.ce.gov.br";
+// Hosts aceitos em MAPA_CULTURAL_BASE: só a instância de teste local (scripts/instancia-teste).
+const HOSTS_LOCAIS = new Set(["127.0.0.1", "localhost"]);
 const FUSO = "America/Fortaleza";
 // Alcança o maior filtro de período do app ("próximo mês"), contado a partir do dia 1.
 const DIAS_DA_JANELA = 62;
@@ -112,8 +114,36 @@ async function lerComLimite(resposta: Response): Promise<string> {
 }
 
 /**
+ * Origem da API da instância. Sem valor (ou vazio) é a instância do Ceará. Qualquer outro
+ * valor só vale para a instância de teste local: http(s) em 127.0.0.1 ou localhost, sem
+ * credencial nem caminho. O resto lança antes de qualquer requisição; `FONTE` não muda.
+ */
+export function resolverBase(
+  valor: string | undefined = process.env.MAPA_CULTURAL_BASE,
+): URL {
+  if (!valor) return new URL(BASE);
+  const url = URL.canParse(valor) ? new URL(valor) : null;
+  const local =
+    url !== null &&
+    (url.protocol === "http:" || url.protocol === "https:") &&
+    HOSTS_LOCAIS.has(url.hostname) &&
+    url.username === "" &&
+    url.password === "" &&
+    url.pathname === "/" &&
+    url.search === "" &&
+    url.hash === "";
+  if (!local) {
+    throw new Error(
+      "MAPA_CULTURAL_BASE recusada: só http(s)://127.0.0.1[:porta] ou http(s)://localhost[:porta]",
+    );
+  }
+  return new URL(url.origin);
+}
+
+/**
  * Busca todas as ocorrências entre os dois dias, inclusive. Qualquer falha lança: lote
  * incompleto não pode chegar ao banco, porque lá a ausência de uma data significa remoção.
+ * `base` (padrão: MAPA_CULTURAL_BASE) passa por `resolverBase` antes de abrir rede.
  */
 export async function buscarLinhas(
   primeiroDia: string,
@@ -121,11 +151,16 @@ export async function buscarLinhas(
   {
     buscar = fetch,
     esperar = (ms: number) => new Promise<void>((ok) => setTimeout(ok, ms)),
+    base = process.env.MAPA_CULTURAL_BASE,
+  }: {
+    buscar?: typeof fetch;
+    esperar?: (ms: number) => Promise<void>;
+    base?: string | undefined;
   } = {},
 ): Promise<unknown[]> {
   // shortcut: uma requisição só, sem paginar. Em 12/11/2026 a API devolveu 264 linhas para
   // 90 dias sem impor limite. Paginar se a janela passar de alguns milhares de linhas.
-  const url = new URL("/api/event/findOccurrences", BASE);
+  const url = new URL("/api/event/findOccurrences", resolverBase(base));
   url.search = new URLSearchParams({
     "@from": primeiroDia,
     "@to": ultimoDia,
@@ -137,7 +172,7 @@ export async function buscarLinhas(
   }).toString();
 
   for (let tentativa = 1; ; tentativa++) {
-    // redirect "error": a coleta só fala com o host fixo acima.
+    // redirect "error": a coleta só fala com o host resolvido acima.
     const resposta = await buscar(url, {
       redirect: "error",
       signal: AbortSignal.timeout(60_000),

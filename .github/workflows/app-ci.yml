@@ -34,5 +34,5 @@ jobs:
         working-directory: apps/app
       - run: npx expo-doctor
         working-directory: apps/app
-      - run: npx expo export --platform android --platform ios
+      - run: npx expo export --platform android --platform ios --platform web
         working-directory: apps/app

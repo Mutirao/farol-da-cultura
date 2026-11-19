@@ -1,5 +1,5 @@
 # Contexto de build do Docker/Skaffold: só o necessário para instalar e
-# construir com pnpm. Ver infra/k8s/README.md para o que isto serve.
+# construir com pnpm. Ver deploy/README.md para o que isto serve.
 **/node_modules
 **/.turbo
 **/dist
@@ -15,3 +15,10 @@ supabase/.temp
 supabase/.branches
 android
 ios
+
+# Segredos (SEG-01): nunca no contexto de build.
+.env*
+!.env.example
+*.jks
+*.keystore
+key.properties

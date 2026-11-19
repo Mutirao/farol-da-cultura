@@ -30,32 +30,48 @@ nunca escrevem nela diretamente. O vocabulário está em
 
 ## Estado por frente
 
-Status medido no repositório em 17/11/2026. "Fase 0" é a fatia mais fina de
+Status medido no repositório em 19/11/2026. "Fase 0" é a fatia mais fina de
 cada frente que se liga à seguinte; ver [roadmap](docs/ROADMAP.md).
 
-| Frente                 | Onde                             | Existe hoje                                                                                                 | Fase 0                                     |
-| ---------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| F1 Dados               | `supabase/`                      | agenda pública com RLS, baseline das 10 tabelas da coleta legada, vínculo de curador, guard de fonte; pgTAP | não iniciada (vínculo institucional, S0.2) |
-| F2 Coleta/scrapers     | `workers/sympla` (proposto)      | nada no repo; legado Sympla em `raspagem-farol`                                                             | não iniciada (S0.3)                        |
-| F3 Painel              | `apps/painel`                    | prova de composição React-admin + ra-supabase, sem login nem ações                                          | não iniciada (S0.4)                        |
-| F4 Envio/incorporação  | painel + RPCs                    | nada no repo                                                                                                | não iniciada (S0.4, S0.6)                  |
-| F5 Sincronização       | `workers/coleta`                 | importador da API do Mapa Cultural do Ceará, testado, agendamento desligado                                 | não iniciada (instância de teste, S0.5)    |
-| F6 App público         | `apps/app`                       | demonstração Android com agenda, filtros, detalhes e favoritos; web não habilitado; iOS sem build           | não iniciada (web, S0.7)                   |
-| F7 Hospedagem/operação | `.github/`, `deploy/` (proposto) | CI de lint, tipos, testes, pgTAP e export do app; sem artefato de hospedagem                                | não iniciada (S0.8)                        |
+| Frente                 | Onde                  | Existe hoje                                                                                                                                                                                             | Fase 0          |
+| ---------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| F1 Dados               | `supabase/`           | agenda pública com RLS, baseline da coleta legada, curadoria, vínculo coletado ↔ institucional (`registrar_incorporacao`/`confirmar_incorporacao`); pgTAP cobrindo agenda, curadoria, vínculo e leitura | ok (S0.2)       |
+| F2 Coleta/scrapers     | `workers/sympla`      | `@farol/sympla`: lê detalhes locais e grava via `registrar_coleta_minima`; sem descoberta online, paginação ou cron                                                                                     | ok (S0.3)       |
+| F3 Painel              | `apps/painel`         | React-admin + ra-supabase com login por código, lista de coletados, aprovar e exportar CSV/JSON                                                                                                         | ok (S0.4)       |
+| F4 Envio/incorporação  | painel + RPCs         | painel registra a incorporação e mostra o estado do vínculo; `workers/coleta` confere ID e conteúdo na instância e confirma                                                                             | ok (S0.4, S0.6) |
+| F5 Sincronização       | `workers/coleta`      | importador da API do Mapa Cultural com `MAPA_CULTURAL_BASE` só local; instância de teste em `scripts/instancia-teste`; agendamento desligado                                                            | ok (S0.5)       |
+| F6 App público         | `apps/app`            | agenda, filtros, detalhes e favoritos; Android, iOS e web habilitados em `app.config.ts`, com favoritos próprios no navegador; iOS sem build (H3)                                                       | ok (S0.7)       |
+| F7 Hospedagem/operação | `.github/`, `deploy/` | CI de lint, tipos, testes, pgTAP, export do app e e2e; imagem estática única para painel e app web, manifests k8s via Skaffold, sem deploy                                                              | ok (S0.8)       |
 
-A coluna "Fase 0" só muda para "ok" quando o teste ponta a ponta da corrente
-(S0.9) e a verificação independente (S0.10) passarem.
+A Fase 0 passou no teste ponta a ponta da corrente (S0.9, `pnpm e2e:esqueleto`)
+e na verificação independente (S0.10); ver
+[relatório da Fase 0 por frente](docs/relatorios/fase0-frentes.md). Pendências
+abertas registradas no relatório:
+
+- corrida TOCTOU entre a leitura em `workers/coleta/src/confirmar.ts` e a gravação
+  em `confirmar_incorporacao` (P2, U3.3);
+- falta de unicidade em `(base, tipo_entidade, mapas_id)` em
+  `private.vinculos_institucionais` (U1.5);
+- `deploy/k8s/web.yaml` sem `ingressClassName` nem TLS (gate humano);
+- 13 avisos de texto fixo sem i18n no painel.
 
 ## Documentação
 
-- [Roadmap](docs/ROADMAP.md): Fase 0 por frente, roadmap mínimo e melhorias.
-- [Ontologia e fluxo institucional](docs/ONTOLOGIA-E-FLUXO.md): termos, entidades,
-  proveniência, instâncias/bases/cidades e etapas do fluxo.
+Índice completo, ordem de leitura e vigência de cada arquivo: [docs/README.md](docs/README.md).
+
+- [Roadmap](docs/ROADMAP.md): Fase 0 por frente, marcos M1–M5 e melhorias.
+- [Ontologia e fluxo institucional](docs/ONTOLOGIA-E-FLUXO.md): glossário único do
+  domínio, proveniência, instâncias/bases/cidades e etapas do fluxo.
 - [Plano unificado](docs/PLANO-UNIFICADO-2026-11-16.md): contratos, tarefas U0–U8 e gates.
+- [Plano dos crawlers](docs/plans/2026-11-19-gitnexus-plan-crawler-quatro-fontes.md):
+  pesquisa e etapas U2 na ordem **Sympla → Outgo → Ingresse → Bilheteria Digital**.
+  Implementação e ativação estão pendentes.
 - [ADR-0009](docs/adr/0009-ecossistema-institucional.md): decisões aprovadas em
   2026-11-17 e relação com os ADRs anteriores.
-- [Plano mobile](docs/PLANO-APP-MOBILE.md) e [Fase 0 da fundação](docs/PLANO-FASE-0-REVISADO.md):
-  histórico das entregas e pendências, sem limitar o escopo atual.
+- [Setup da máquina](docs/setup-maquina.md): versões de Node, pnpm, eas-cli e gitleaks.
+
+Histórico congelado, não orienta trabalho novo: [plano mobile](docs/PLANO-APP-MOBILE.md),
+[Fase 0 da fundação](docs/PLANO-FASE-0-REVISADO.md) e [relatórios](docs/relatorios/portao-0.md).
 
 ## Requisitos
 
@@ -76,7 +92,8 @@ cd apps/app && APP_VARIANT=development npx expo start --dev-client   # app
 ```
 
 Cada pacote tem seu README: [app](apps/app/README.md), [painel](apps/painel/README.md),
-[sincronização](workers/coleta/README.md).
+[coleta externa](workers/sympla/README.md) e
+[sincronização institucional](workers/coleta/README.md).
 
 ## Licença
 

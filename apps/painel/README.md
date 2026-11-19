@@ -1,44 +1,125 @@
-# Painel — prova de compatibilidade U0.3
+# Painel — curadoria mínima (S0.4)
 
-Pacote mínimo React-admin padrão + ra-supabase; ainda não é o painel operacional.
-D6 revisada pelo usuário em 2026-11-16; ver [ADR-0008](../../docs/adr/0008-plataforma-unificada.md).
+Painel operacional mínimo: login de curador, lista/detalhe dos eventos
+coletados, aprovar/rejeitar, exportação mínima e registro de incorporação
+com o estado do vínculo. Supera a prova de composição U0.3 (histórico em
+[relatório U0.3](../../docs/relatorios/unificacao-painel-compatibilidade.md)).
+D6 revisada pelo usuário em 2026-11-16; ver [ADR-0008](../../docs/adr/0008-plataforma-unificada.md)
+e [ADR-0009](../../docs/adr/0009-ecossistema-institucional.md).
+
+**Curadoria nunca publica direto na agenda.** Aprovar não envia; exportar não
+comprova incorporação; registrar só marca o vínculo como `registrado`, até a
+confirmação (service role, fora do painel — ver S0.2/S0.6).
+
+## Como rodar localmente
+
+Pré-requisitos: Node 26.10.0, pnpm 12.18.0 (`export PATH=...` conforme
+`AGENTS.md`), Supabase local rodando (`pnpm supabase start`, Docker).
 
 ```bash
 pnpm install --frozen-lockfile --strict-peer-dependencies
-pnpm --filter @farol/painel typecheck
+
+# chaves do stack local (nunca a service_role aqui: VITE_* é sempre público)
+pnpm supabase status -o json   # copie API_URL e PUBLISHABLE_KEY
+
+VITE_SUPABASE_URL=http://127.0.0.1:54321 \
+VITE_SUPABASE_PUBLISHABLE_KEY=<PUBLISHABLE_KEY de supabase status> \
+pnpm --filter @farol/painel dev        # http://127.0.0.1:5173
+
+# ou build + preview (bundle de produção, mesmo fluxo da verificação E2E)
+VITE_SUPABASE_URL=http://127.0.0.1:54321 \
+VITE_SUPABASE_PUBLISHABLE_KEY=<PUBLISHABLE_KEY> \
 pnpm --filter @farol/painel build
-pnpm --filter @farol/painel dev
+pnpm --filter @farol/painel preview    # http://127.0.0.1:4173
 ```
 
-Sem configuração, a SPA mostra somente o resultado da composição. A composição
-React-admin usa `ready` para a tela sem recursos; não descobre tabelas, não
-habilita CRUD, não solicita sessão e desliga telemetria. O aspecto é o padrão do
-framework, não o design final U5.
+Sem `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY`, a SPA mostra só um
+aviso ("não configurado"), sem nenhuma chamada de rede — não há mais a prova
+de composição `ready` do U0.3.
 
-O operador pode fornecer `VITE_SUPABASE_URL` e
-`VITE_SUPABASE_PUBLISHABLE_KEY` para compor o data provider. **Tudo com prefixo
-VITE é público; nunca usar service_role.** Não há arquivos de credenciais nesta
-prova. A verificação de build configurado utilizou uma string sintética sem
-permissão, sem chamadas ao backend, apenas para impedir que o bundler eliminasse
-React-admin por falta de configuração.
+```bash
+pnpm --filter @farol/painel typecheck
+pnpm --filter @farol/painel build
+pnpm --filter @farol/painel test        # vitest (unitários; não precisa do Supabase local)
+```
 
-Não há login por senha nem magic link implementado aqui. O adaptador sem senha,
-a confirmação de OTP e as ações autenticadas/RPCs pertencem ao restante do plano.
+## Como logar localmente
 
-## Papel no ecossistema
+O login é sem senha: a tela pede um e-mail de curador, chama
+`supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } })`
+("Enviar código") e, só depois de um segundo clique explícito
+("Confirmar código"), chama `verifyOtp` com o código digitado. Cadastro
+público desabilitado — só curador já provisionado entra. `checkAuth` exige
+`current_curator()` não nulo (vínculo em `private.curator_identities` com
+`public.users.role = 'curator'` e `is_active = true`; ver
+`20261117000200_curadoria_acesso.sql`), não só uma sessão válida: curador
+desativado perde acesso mesmo com JWT ainda vigente.
 
-O painel operacional deverá atender múltiplas fontes/scrapers, instâncias e
-cidades, com relações de base compartilhada explicitadas. Curadoria, preparação
-de envio, confirmação na API institucional e sincronização têm evidências e
-ações distintas. Registros coletados não são publicados diretamente na agenda
-pelo painel: precisam ser incorporados na instância de Mapas Culturais e
-confirmados na API. Essa operação ainda não está implementada nesta prova.
+**Inbucket local está parado** (confirmado: `signInWithOtp` responde
+`500 Error sending magic link email`). Por isso a tela sempre avança para a
+etapa de código depois de "Enviar código", mesmo quando o envio falhou (isso
+também evita vazar se o e-mail existe) — e a verificação de uma
+sessão ainda sem curador não mostra mais notificação "sem sessão" ao abrir a
+tela de login — útil tanto em produção (SMTP fora do ar) quanto aqui.
 
-Aplicativo público Android/iOS/web e painel web são interfaces separadas.
-Referências: [ontologia e fluxo](../../docs/ONTOLOGIA-E-FLUXO.md),
-[ADR-0009](../../docs/adr/0009-ecossistema-institucional.md) e
-[plano unificado](../../docs/PLANO-UNIFICADO-2026-11-16.md).
+Roteiro para logar localmente sem e-mail de verdade, usando um curador
+provisionado:
 
-Resultados e limites: [relatório U0.3](../../docs/relatorios/unificacao-painel-compatibilidade.md).
-O arquivo CLAUDE.md local ainda descreve a decisão anterior; não foi modificado
-porque mudanças de instruções precisam de autorização específica.
+1. **Provisione o vínculo** (fora deste pacote, não editado por S0.4): rode
+   `scripts/provisionar-curador.ts` com um `public.users` já existente e
+   papel `curator`, ou monte o vínculo a mão (veja o padrão usado no pgTAP
+   `007_curadoria_minima.test.sql` e em `scripts/test/admin-local.test.ts`):
+   - crie o usuário no Auth local via Admin API
+     (`POST {API_URL}/auth/v1/admin/users` com `service_role`, nunca no
+     cliente), com o mesmo e-mail de um `public.users` com `role='curator'`
+     e `is_active=true`;
+   - ligue as duas identidades em `private.curator_identities (auth_user_id,
+     user_id)`.
+2. **Gere o código sem e-mail**: `POST {API_URL}/auth/v1/admin/generate_link`
+   (`service_role`) com `{"type":"magiclink","email":"<e-mail do curador>"}`.
+   A resposta traz `email_otp` (6 dígitos) — esse endpoint nunca tenta enviar
+   e-mail, então funciona com o Inbucket parado.
+3. Na tela de login do painel: digite o e-mail, clique **Enviar código**
+   (vai mostrar um aviso de que não foi possível confirmar o envio — normal
+   aqui), digite o `email_otp` do passo 2 em **Código recebido** e clique
+   **Confirmar código**.
+4. Para desfazer o provisionamento de teste: apague a linha de
+   `private.curator_identities`, o `public.users` e o usuário Auth (Admin API
+   `DELETE /auth/v1/admin/users/<id>`) — nessa ordem.
+
+Em produção, com SMTP configurado, o mesmo fluxo funciona com o código vindo
+do e-mail de verdade; nada no painel muda.
+
+## Recursos
+
+- **Eventos coletados** (`public.events`, lista e detalhe): só as colunas que
+  a RLS de `20261117000200_curadoria_acesso.sql` libera para `authenticated`
+  com curador ativo (ninguém mais vê nenhuma linha).
+- **Aprovar / Rejeitar**: chama `curar_evento(p_event_id, p_version, p_status)`
+  (`20261117000700_curadoria_minima.sql`). Sempre envia a `version` lida pelo
+  painel; a RPC recusa (`23505`) se divergir de outra coleta ou curadoria
+  concorrente. Não altera `export_*`, `space_match_*` nem `mapas_import_*`,
+  nunca escreve na agenda pública.
+- **Vínculo institucional** (coluna na lista e card no detalhe): lê
+  `public.vinculos_institucionais` (contrato do S0.2) por `event_id`; evento
+  sem linha aparece como "Sem vínculo institucional".
+- **Registrar incorporação**: só aparece com o evento `approved`; chama
+  `registrar_incorporacao(p_event_id, p_instancia, p_base, p_mapas_id)`
+  (S0.2). O estado fica `registrado` até a confirmação (service role, fora
+  do painel).
+- **Exportar aprovados (CSV/JSON mínimo)**: botão na lista, busca
+  `curation_status=approved` direto (independe da paginação/filtro atual da
+  tela) e gera o arquivo no navegador. Rotulado como exportação mínima — não
+  é o CSV compatível com o Mapas Culturais (isso é trabalho do U4).
+
+## Limites conhecidos
+
+- Mensagens próprias do painel são pt-BR (sem `@farol/i18n`, por regra do
+  projeto); textos de infraestrutura do próprio React-admin (paginação,
+  "Please login to continue" antes do primeiro login) continuam em inglês —
+  não foi feita localização completa do framework.
+- Sem papéis/permissões diferenciadas entre curadores, sem paginação além do
+  padrão do React-admin, sem edição de outros campos do evento.
+- `useVinculo`/`useVinculos` buscam o vínculo institucional fora do data
+  provider (consulta direta via `@supabase/supabase-js`); atualizam na
+  aprovação/registro desta sessão, mas não há realtime entre abas.

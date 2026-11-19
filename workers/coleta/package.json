@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "importar": "node src/importar.ts",
+    "confirmar": "node src/confirmar.ts",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"
   },

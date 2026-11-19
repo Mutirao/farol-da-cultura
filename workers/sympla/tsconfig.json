@@ -1,0 +1,9 @@
+{
+  "extends": "@farol/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "ESNext.Temporal"],
+    "types": ["node"],
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src", "test", "vitest.config.ts"]
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "id": 9001,
+    "name": "Roda de Choro de Teste",
+    "event_id": 9001,
+    "occurrence_id": 8001,
+    "starts_on": "2030-01-10",
+    "starts_at": "16:00:00",
+    "ends_on": null,
+    "ends_at": "17:30:00",
+    "shortDescription": "Evento fictício da instância de teste.",
+    "longDescription": null,
+    "classificacaoEtaria": "Livre",
+    "terms": { "tag": [], "linguagem": ["Música"] },
+    "rule": {
+      "spaceId": "7001",
+      "startsOn": "2030-01-10",
+      "until": "2030-01-10",
+      "startsAt": "16:00",
+      "duration": 90,
+      "frequency": "once",
+      "price": "Gratuito",
+      "endsAt": "17:30"
+    },
+    "space": {
+      "id": 7001,
+      "name": "Centro Cultural de Teste",
+      "shortDescription": "Espaço fictício da instância de teste.",
+      "endereco": "Rua de Teste, 100, Centro, Fortaleza, undefined, CE",
+      "En_Municipio": "Fortaleza",
+      "acessibilidade_fisica": "Rampa de acesso;Banheiro adaptado",
+      "location": { "latitude": "-3.7300", "longitude": "-38.5200" }
+    }
+  },
+  {
+    "id": 9002,
+    "name": "Mostra de Teatro de Teste",
+    "event_id": 9002,
+    "occurrence_id": 8002,
+    "starts_on": "2030-01-12",
+    "starts_at": "19:30:00",
+    "ends_on": null,
+    "ends_at": "21:00:00",
+    "shortDescription": "Outro evento fictício da instância de teste.",
+    "longDescription": "Apresentações em duas noites.",
+    "classificacaoEtaria": "12 anos",
+    "terms": { "tag": [], "linguagem": ["Teatro"] },
+    "rule": {
+      "spaceId": "7001",
+      "startsOn": "2030-01-12",
+      "until": "2030-01-12",
+      "startsAt": "19:30",
+      "duration": 90,
+      "frequency": "once",
+      "price": "R$ 20,00",
+      "endsAt": "21:00"
+    },
+    "space": {
+      "id": 7001,
+      "name": "Centro Cultural de Teste",
+      "shortDescription": "Espaço fictício da instância de teste.",
+      "endereco": "Rua de Teste, 100, Centro, Fortaleza, undefined, CE",
+      "En_Municipio": "Fortaleza",
+      "acessibilidade_fisica": "Rampa de acesso;Banheiro adaptado",
+      "location": { "latitude": "-3.7300", "longitude": "-38.5200" }
+    }
+  },
+  {
+    "id": 9002,
+    "name": "Mostra de Teatro de Teste",
+    "event_id": 9002,
+    "occurrence_id": 8003,
+    "starts_on": "2030-01-19",
+    "starts_at": "19:30:00",
+    "ends_on": null,
+    "ends_at": "21:00:00",
+    "shortDescription": "Outro evento fictício da instância de teste.",
+    "longDescription": "Apresentações em duas noites.",
+    "classificacaoEtaria": "12 anos",
+    "terms": { "tag": [], "linguagem": ["Teatro"] },
+    "rule": {
+      "spaceId": "7001",
+      "startsOn": "2030-01-19",
+      "until": "2030-01-19",
+      "startsAt": "19:30",
+      "duration": 90,
+      "frequency": "once",
+      "price": "R$ 20,00",
+      "endsAt": "21:00"
+    },
+    "space": {
+      "id": 7001,
+      "name": "Centro Cultural de Teste",
+      "shortDescription": "Espaço fictício da instância de teste.",
+      "endereco": "Rua de Teste, 100, Centro, Fortaleza, undefined, CE",
+      "En_Municipio": "Fortaleza",
+      "acessibilidade_fisica": "Rampa de acesso;Banheiro adaptado",
+      "location": { "latitude": "-3.7300", "longitude": "-38.5200" }
+    }
+  }
+]

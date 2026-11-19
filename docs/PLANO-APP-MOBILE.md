@@ -1,5 +1,7 @@
 # Farol da Cultura — plano enxuto: app mobile novo a partir do app existente
 
+> **HISTÓRICO — congelado em 17/11/2026.** Registra as entregas M e as pendências mobile; não orienta trabalho novo. A evolução é regida pelo [plano unificado](./PLANO-UNIFICADO-2026-11-16.md) (§U8) e pelo [índice](./README.md).
+
 **Status:** implementação autorizada pela pessoa em 12/11/2026, com a resposta "pode implementar" ao plano proposto. A pessoa não respondeu às decisões D1 e D2 uma a uma: a implementação segue as propostas da seção 7 até que ela diga o contrário. · **Data:** 12/11/2026 · **Origem:** rascunho de agente, a pedido da pessoa.
 
 > **Revisão de escopo, 2026-11-17:** este documento permanece como histórico das

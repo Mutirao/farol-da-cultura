@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 const disco = vi.hoisted(() => ({
   arquivos: new Map<string, string>(),
@@ -30,29 +30,26 @@ vi.mock("expo-file-system", () => ({
   },
 }));
 
-import { lerFavoritos, salvarFavoritos } from "../src/agenda/favoritos";
+import * as nativo from "../src/agenda/favoritos";
+import { contratoFavoritos } from "./favoritos.contrato";
 
-beforeEach(() => {
-  disco.arquivos.clear();
-  disco.falhar = false;
-});
-it("primeiro uso começa sem favoritos", async () =>
-  expect(await lerFavoritos()).toEqual([]));
-it("salva, lê e substitui a lista anterior", async () => {
-  await salvarFavoritos(["fonte:1"]);
-  expect(await lerFavoritos()).toEqual(["fonte:1"]);
-  await salvarFavoritos(["fonte:2"]);
-  expect(await lerFavoritos()).toEqual(["fonte:2"]);
-  expect(disco.arquivos.has("favoritos-v1.tmp")).toBe(false);
-});
-it("falha de gravação mantém os favoritos anteriores", async () => {
-  await salvarFavoritos(["fonte:1"]);
-  disco.falhar = true;
-  await expect(salvarFavoritos(["fonte:2"])).rejects.toThrow("sem espaço");
-  expect(await lerFavoritos()).toEqual(["fonte:1"]);
-});
-it("arquivo corrompido é preservado, não convertido silenciosamente em vazio", async () => {
-  disco.arquivos.set("favoritos-v1.json", "quebrado");
-  await expect(lerFavoritos()).rejects.toThrow();
-  expect(disco.arquivos.get("favoritos-v1.json")).toBe("quebrado");
+describe("favoritos nativos (expo-file-system)", () => {
+  contratoFavoritos(nativo, {
+    limpar: () => {
+      disco.arquivos.clear();
+      disco.falhar = false;
+    },
+    falharGravacao: () => {
+      disco.falhar = true;
+    },
+    corromper: (valor) => disco.arquivos.set("favoritos-v1.json", valor),
+    bruto: () => disco.arquivos.get("favoritos-v1.json"),
+  });
+
+  it("troca o arquivo só depois da gravação e não deixa temporário", async () => {
+    await nativo.salvarFavoritos(["fonte:1"]);
+    await nativo.salvarFavoritos(["fonte:2"]);
+    expect(disco.arquivos.has("favoritos-v1.tmp")).toBe(false);
+    expect(disco.arquivos.get("favoritos-v1.json")).toBe('["fonte:2"]');
+  });
 });

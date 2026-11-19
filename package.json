@@ -12,7 +12,8 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "build": "turbo run build",
-    "check:tooling": "tsc -p tsconfig.tooling.json"
+    "check:tooling": "tsc -p tsconfig.tooling.json",
+    "e2e:esqueleto": "node scripts/e2e/esqueleto.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.7",

@@ -3,9 +3,7 @@
 O produto contempla **Android, iOS e web**, conforme o
 [ADR-0009](../../docs/adr/0009-ecossistema-institucional.md) e a trilha U8 do
 [plano unificado](../../docs/PLANO-UNIFICADO-2026-11-16.md). A base atual é Expo
-SDK 58, com alvos configurados apenas para Android/iOS; web ainda precisa ser
-habilitada e validada. A presença do script web não comprova suporte de
-navegação, arquivos/favoritos, mapas ou permissões no navegador. O painel
+SDK 58, com alvos Android, iOS e web (ver "Web" abaixo). O painel
 administrativo é outra aplicação e não substitui esse alvo público. A hospedagem
 do build web acompanha o modelo do painel, com artefato e domínio próprios.
 
@@ -62,6 +60,28 @@ O template foi criado com `default@sdk-58 --no-agents-md --no-install`; a flag
 foi confirmada no `create-expo-app --help` e nenhum AGENTS.md/CLAUDE.md foi gerado.
 `expo-symbols` e `@expo/ui` foram instalados explicitamente.
 
+### Web
+
+`web.output` é `single`: o export gera um `index.html` e os bundles em
+`_expo/`, servidos por qualquer servidor estático **com fallback de SPA**
+(toda rota desconhecida devolve `index.html`, senão `/evento/62` recarregado dá
+404). As variáveis `EXPO_PUBLIC_*` são embutidas no bundle durante o export.
+
+```sh
+npx expo start --web                    # desenvolvimento, com .env.local
+EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 \
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<chave publishable local> \
+  npx expo export --platform web --output-dir dist
+```
+
+No navegador, os favoritos ficam no `localStorage` da origem
+(`src/agenda/favoritos.web.ts`), com o mesmo contrato do arquivo nativo
+(`test/favoritos.contrato.ts`); não são compartilhados com o app instalado.
+Comportamento verificado no navegador: abas nativas viram barra de abas web;
+localização negada mantém a ordem por data; sem `navigator.share` o botão
+Compartilhar não faz nada e `Alert.alert` não mostra aviso (no-op no
+react-native-web), assim como o aviso de falha de leitura/gravação dos favoritos.
+
 ## Variantes e EAS
 
 | APP_VARIANT                | Android package / iOS bundleIdentifier | Perfil EAS                       |
@@ -92,4 +112,4 @@ Referências: [config SDK 58](https://docs.expo.dev/versions/v58.0.0/config/app/
 
 Veja `docs/evidencias/VERIFY.md` para saídas, códigos de saída, build IDs,
 verificação Android e bloqueio iOS. O CI novo `app-ci.yml` verifica as versões,
-roda Expo Doctor e exporta Android/iOS sem build nativo.
+roda Expo Doctor e exporta Android/iOS/web sem build nativo.

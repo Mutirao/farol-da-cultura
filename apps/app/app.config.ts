@@ -15,7 +15,10 @@ const config: ExpoConfig = {
   owner: "lpirola",
   extra: { eas: { projectId: "e0eb648f-ab50-41a1-b980-601872a81120" } },
   version: "0.1.0",
-  platforms: ["ios", "android"],
+  platforms: ["ios", "android", "web"],
+  // SPA: um index.html servido com fallback, como o painel. A agenda é buscada
+  // no cliente e /evento/[id] é dinâmico; pré-renderizar (static) não traria dados.
+  web: { output: "single" },
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: selected.id,

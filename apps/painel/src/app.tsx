@@ -1,52 +1,53 @@
-import { createClient } from "@supabase/supabase-js";
-import { supabaseDataProvider } from "ra-supabase";
-import { Admin } from "react-admin";
+import { Admin, Resource } from "react-admin";
+import { criarAuthProvider } from "./authProvider";
+import { criarDataProvider } from "./dataProvider";
+import { EventoShow } from "./eventos/EventoShow";
+import { EventosList } from "./eventos/EventosList";
+import { LoginPage } from "./LoginPage";
+import {
+  apiKey,
+  instanceUrl,
+  supabase,
+  supabaseConfigurado,
+} from "./supabaseClient";
 
 const textos = {
-  titulo: "Farol — prova de compatibilidade U0.3",
-  descricao:
-    "React-admin e ra-supabase instalados; painel operacional ainda não habilitado.",
+  titulo: "Farol — curadoria",
 };
 
-function Compatibilidade() {
+function SemConfiguracao() {
   return (
     <main>
       <h1>{textos.titulo}</h1>
-      <p>{textos.descricao}</p>
+      <p>
+        VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY não configurados. Veja
+        o README deste pacote para rodar e logar localmente.
+      </p>
     </main>
   );
 }
 
-// Apenas uma prova de composição/build. Não há recursos, login por senha,
-// descoberta automática de tabelas ou ações de escrita nesta etapa.
-// Nunca configurar service_role no Vite: qualquer VITE_* é dado público.
-const instanceUrl = import.meta.env.VITE_SUPABASE_URL;
-const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const dataProvider =
-  instanceUrl && apiKey
-    ? supabaseDataProvider({
-        instanceUrl,
-        apiKey,
-        supabaseClient: createClient(instanceUrl, apiKey, {
-          auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false,
-          },
-        }),
-      })
-    : null;
-
+// Painel mínimo: login de curador, lista/detalhe dos eventos coletados,
+// aprovar/rejeitar, exportação mínima e registro de incorporação com o
+// estado do vínculo. Curadoria nunca escreve na agenda pública (ADR-0009).
 export function App() {
-  if (!dataProvider) return <Compatibilidade />;
+  if (!supabaseConfigurado || !supabase || !instanceUrl || !apiKey) {
+    return <SemConfiguracao />;
+  }
   return (
     <Admin
       title={textos.titulo}
-      dataProvider={dataProvider}
-      dashboard={Compatibilidade}
-      ready={Compatibilidade}
+      dataProvider={criarDataProvider(instanceUrl, supabase)}
+      authProvider={criarAuthProvider(supabase)}
+      loginPage={LoginPage}
       disableTelemetry
-      loginPage={false}
-    />
+    >
+      <Resource
+        name="events"
+        options={{ label: "Eventos coletados" }}
+        list={EventosList}
+        show={EventoShow}
+      />
+    </Admin>
   );
 }

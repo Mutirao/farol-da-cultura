@@ -1,9 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  carregarFixtures,
+  criarInstanciaTeste,
+} from "../../../scripts/instancia-teste/servidor.ts";
 import {
   buscarLinhas,
   gratuito,
   janela,
   normalizar,
+  resolverBase,
 } from "../src/mapaCultural.ts";
 
 const JANELA = { de: "2030-01-01T03:00:00Z", ate: "2030-03-05T03:00:00Z" };
@@ -339,5 +344,101 @@ describe("buscarLinhas", () => {
     await expect(
       buscarLinhas("2030-01-01", "2030-03-04", fonte.opcoes),
     ).rejects.toThrow(mensagem);
+  });
+});
+
+describe("MAPA_CULTURAL_BASE", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it.each([undefined, ""])(
+    "sem valor (%j) usa a instância do Ceará",
+    (valor) => {
+      expect(resolverBase(valor).origin).toBe(
+        "https://mapacultural.secult.ce.gov.br",
+      );
+    },
+  );
+
+  it.each([
+    ["http://127.0.0.1:8787", "http://127.0.0.1:8787"],
+    ["http://localhost:8787/", "http://localhost:8787"],
+    ["https://localhost", "https://localhost"],
+  ])("aceita a base local %s", (valor, origem) => {
+    expect(resolverBase(valor).origin).toBe(origem);
+  });
+
+  it.each([
+    "https://exemplo.test",
+    "http://10.0.0.1",
+    "http://localhost.exemplo.test",
+    "http://127.0.0.1.exemplo.test",
+    "http://usuario:senha@127.0.0.1:8787",
+    "http://127.0.0.1:8787/outro/caminho",
+    "ftp://127.0.0.1",
+    "127.0.0.1:8787",
+  ])("recusa %s", (valor) => {
+    expect(() => resolverBase(valor)).toThrow("MAPA_CULTURAL_BASE recusada");
+  });
+
+  it("busca na base local quando ela é aceita", async () => {
+    const pedidos: URL[] = [];
+    const buscar = (async (url: URL) => {
+      pedidos.push(url);
+      return new Response("[]");
+    }) as typeof fetch;
+    await buscarLinhas("2030-01-01", "2030-03-04", {
+      buscar,
+      base: "http://127.0.0.1:8787",
+    });
+    expect(pedidos[0]?.origin).toBe("http://127.0.0.1:8787");
+    expect(pedidos[0]?.pathname).toBe("/api/event/findOccurrences");
+  });
+
+  it.each(["https://exemplo.test", "http://10.0.0.1"])(
+    "recusa %s antes de qualquer requisição, pela opção e pelo ambiente",
+    async (valor) => {
+      const buscar = vi.fn<typeof fetch>();
+      await expect(
+        buscarLinhas("2030-01-01", "2030-03-04", { buscar, base: valor }),
+      ).rejects.toThrow("MAPA_CULTURAL_BASE recusada");
+
+      vi.stubEnv("MAPA_CULTURAL_BASE", valor);
+      await expect(
+        buscarLinhas("2030-01-01", "2030-03-04", { buscar }),
+      ).rejects.toThrow("MAPA_CULTURAL_BASE recusada");
+      expect(buscar).not.toHaveBeenCalled();
+    },
+  );
+
+  it("sincroniza a fixture da instância de teste em porta efêmera", async () => {
+    const instancia = await criarInstanciaTeste({
+      linhas: await carregarFixtures(),
+    });
+    try {
+      vi.stubEnv("MAPA_CULTURAL_BASE", instancia.url);
+      const linhas = await buscarLinhas("2030-01-01", "2030-01-31");
+      expect(linhas).toHaveLength(3);
+      const { lote, rejeitadas } = normalizar(linhas, JANELA);
+      expect(rejeitadas).toEqual({});
+      expect(lote.espacos.map((espaco) => espaco.id_externo)).toEqual(["7001"]);
+      expect(
+        lote.eventos.map((evento) => [
+          evento.id_externo,
+          evento.datas.map((data) => data.inicio),
+        ]),
+      ).toEqual([
+        ["9001", ["2030-01-10T19:00:00Z"]],
+        ["9002", ["2030-01-12T22:30:00Z", "2030-01-19T22:30:00Z"]],
+      ]);
+
+      // A janela pedida chega à instância: só a ocorrência do dia 12.
+      expect(
+        await buscarLinhas("2030-01-11", "2030-01-15", { base: instancia.url }),
+      ).toHaveLength(1);
+    } finally {
+      await instancia.fechar();
+    }
   });
 });
