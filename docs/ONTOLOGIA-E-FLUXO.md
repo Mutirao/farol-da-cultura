@@ -115,4 +115,4 @@ O prazo de revalidação e a política para indisponibilidade, ocultação ou re
 - **Workers:** múltiplos conectores e scrapers com limites e agendamento por configuração. Isolar Chromium do importador leve e dos bundles de app/painel; múltiplos scrapers não exigem microserviços ou um framework por fonte.
 - **Segurança:** dados de preparação, evidências restritas e credenciais não ficam públicos. RLS e grants explícitos, papéis de servidor nos workers e autorização de operador no backend; nunca credencial privilegiada no aplicativo ou no painel.
 
-Para distinguir as capacidades verificadas dos objetivos de produto, consulte o [estado por frente](../README.md#estado-por-frente).
+Consulte o [estado por frente](../README.md#estado-por-frente) para separar os pilotos locais do que foi homologado. Hoje `workers/sympla` recebe detalhe de arquivo para preparar a coleta externa; `workers/coleta` sincroniza a agenda da API institucional. O [plano dos crawlers](plans/2026-11-19-gitnexus-plan-crawler-quatro-fontes.md) não habilita novas fontes nem muda a autoridade da agenda.

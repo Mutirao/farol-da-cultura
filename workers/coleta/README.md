@@ -24,6 +24,12 @@ Uma execução faz três coisas:
 2. Valida cada linha e monta um lote. Linha ruim é contada e fica de fora.
 3. Entrega o lote a `public.importar_agenda`, que grava tudo numa transação só.
 
+O importador lê `public.versao_agenda_ce()` antes da busca. Se a agenda for
+atualizada por outra execução nesse intervalo, o banco recusa o lote e é
+preciso começar uma nova coleta. A mesma regra vale para a sincronização
+pelo painel. Aplique a migração de versionamento antes de atualizar o worker
+e somente habilite a sincronização manual após atualizar os demais importadores.
+
 ## Regras que a importação segue
 
 - Espaço e evento novos entram publicados. Depois disso a importação não mexe em `publicado`:

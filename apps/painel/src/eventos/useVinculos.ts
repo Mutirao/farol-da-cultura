@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { EstadoVinculo } from "./acoes";
 
 // GET /rest/v1/vinculos_institucionais?event_id=in.(...)&select=event_id,
@@ -42,11 +42,8 @@ export function useVinculos(
 export function useVinculo(
   supabase: SupabaseClient | null,
   eventId: number | undefined,
-): [EstadoVinculo | undefined, () => void] {
+): EstadoVinculo | undefined {
   const [vinculo, setVinculo] = useState<EstadoVinculo | undefined>(undefined);
-  // Conta geração: refetch() força uma nova busca depois de uma escrita
-  // (registrar_incorporacao), já que eventId/supabase não mudam sozinhos.
-  const [geracao, setGeracao] = useState(0);
 
   useEffect(() => {
     if (!supabase || eventId === undefined) return;
@@ -64,8 +61,7 @@ export function useVinculo(
     return () => {
       cancelado = true;
     };
-  }, [supabase, eventId, geracao]);
+  }, [supabase, eventId]);
 
-  const refetch = useCallback(() => setGeracao((g) => g + 1), []);
-  return [vinculo, refetch];
+  return vinculo?.event_id === eventId ? vinculo : undefined;
 }

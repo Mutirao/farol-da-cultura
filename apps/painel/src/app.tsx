@@ -4,6 +4,7 @@ import { criarAuthProvider } from "./authProvider";
 import { criarDataProvider } from "./dataProvider";
 import { EventoShow } from "./eventos/EventoShow";
 import { EventosList } from "./eventos/EventosList";
+import { InstanciasPage } from "./instancias/InstanciasPage";
 import { LoginPage } from "./LoginPage";
 import { m } from "./mensagens";
 import {
@@ -30,6 +31,7 @@ function MenuPainel() {
       <Menu.ResourceItem name="events" />
       <Menu.ResourceItem name="spaces" />
       <ListSubheader>{m.menu.operacao}</ListSubheader>
+      <Menu.ResourceItem name="instancias-oficiais" />
       <Menu.ResourceItem name="sources" />
       <Menu.ResourceItem name="job_runs" />
       <Menu.ResourceItem name="exports" />
@@ -60,7 +62,7 @@ function SemConfiguracao() {
 }
 
 // Painel mínimo: login de curador, lista/detalhe dos eventos coletados,
-// aprovar/rejeitar, exportação mínima e registro de incorporação.
+// aprovar/rejeitar, exportação mínima e operação da agenda por instância oficial.
 // Curadoria nunca escreve na agenda pública (ADR-0009).
 export function App() {
   if (!supabaseConfigurado || !supabase || !instanceUrl || !apiKey) {
@@ -86,6 +88,11 @@ export function App() {
         options={{ label: m.recursos.spaces }}
         list={EspacosList}
         show={EspacosShow}
+      />
+      <Resource
+        name="instancias-oficiais"
+        options={{ label: m.instancias.titulo }}
+        list={InstanciasPage}
       />
       <Resource
         name="sources"

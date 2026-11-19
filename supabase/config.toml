@@ -394,6 +394,12 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
+[functions.instancias-oficiais]
+# A função passa o Bearer do operador ao PostgREST para verificar a sessão
+# e a curadoria ativa, inclusive em projetos com chaves de assinatura novas.
+verify_jwt = false
+import_map = "./functions/instancias-oficiais/deno.json"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

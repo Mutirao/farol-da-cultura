@@ -63,6 +63,9 @@ abertas registradas no relatório:
 - [Ontologia e fluxo institucional](docs/ONTOLOGIA-E-FLUXO.md): glossário único do
   domínio, proveniência, instâncias/bases/cidades e etapas do fluxo.
 - [Plano unificado](docs/PLANO-UNIFICADO-2026-11-16.md): contratos, tarefas U0–U8 e gates.
+- [Plano dos crawlers](docs/plans/2026-11-19-gitnexus-plan-crawler-quatro-fontes.md):
+  pesquisa e etapas U2 na ordem **Sympla → Outgo → Ingresse → Bilheteria Digital**.
+  Implementação e ativação estão pendentes.
 - [ADR-0009](docs/adr/0009-ecossistema-institucional.md): decisões aprovadas em
   2026-11-17 e relação com os ADRs anteriores.
 - [Setup da máquina](docs/setup-maquina.md): versões de Node, pnpm, eas-cli e gitleaks.

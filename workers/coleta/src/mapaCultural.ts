@@ -1,3 +1,5 @@
+import { Buffer } from "node:buffer";
+import process from "node:process";
 import { z } from "zod";
 
 /** Identificador da fonte gravado em cada registro (proveniência). */
@@ -271,6 +273,7 @@ const urlHttps = (valor: string | null | undefined) =>
 export function normalizar(
   linhas: unknown[],
   janelaDoLote: Lote["janela"],
+  { somenteJanela = false } = {},
 ): { lote: Lote; rejeitadas: Record<string, number> } {
   const espacos = new Map<string, Espaco>();
   const eventos = new Map<string, Evento>();
@@ -278,6 +281,8 @@ export function normalizar(
   const rejeitar = (motivo: string) => {
     rejeitadas[motivo] = (rejeitadas[motivo] ?? 0) + 1;
   };
+  const de = Date.parse(janelaDoLote.de);
+  const ate = Date.parse(janelaDoLote.ate);
 
   for (const bruta of linhas) {
     const lida = Linha.safeParse(bruta);
@@ -302,6 +307,13 @@ export function normalizar(
         .toInstant();
     } catch {
       rejeitar("data inválida");
+      continue;
+    }
+    if (
+      somenteJanela &&
+      !(inicio.epochMilliseconds >= de && inicio.epochMilliseconds < ate)
+    ) {
+      rejeitar("data fora da janela");
       continue;
     }
 

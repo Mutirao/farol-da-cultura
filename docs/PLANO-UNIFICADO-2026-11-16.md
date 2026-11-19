@@ -1,6 +1,6 @@
 # Farol da Cultura — plano unificado do ecossistema institucional
 
-**Origem:** 2026-11-16. **Revisão:** 2026-11-17. **Estado:** direção de produto e terminologia aprovadas; documentação autorizada; execução das novas tarefas não autorizada por esta revisão.
+**Origem:** 2026-11-16. **Revisão:** 2026-11-19 (detalhamento de U2; direção institucional de 2026-11-17 preservada). **Estado:** documentação autorizada; execução das novas tarefas e ativação de fontes não autorizadas por esta revisão.
 
 **Destino:** este monorepo, `Mutirao/farol-da-cultura`. Esta revisão substitui o roteiro futuro anterior neste mesmo arquivo, preservando o histórico no Git e as entregas já realizadas. Não há dois planos de integração concorrentes.
 
@@ -47,18 +47,19 @@ O suporte web público agora integra o produto; o painel web não o substitui. M
 
 ### 2.2 Evidência disponível, sem transformar intenção em entrega
 
-| Frente                | Estado observado e limite                                                                                                                                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| App                   | Expo existente consulta `/rest/v1/eventos`; valida Zod, pagina e mantém favoritos por `fonte:id_externo`. Demonstração Android está documentada; não prova publicação ou testes iOS.                                           |
-| Web público           | `apps/app/package.json` possui script web e dependências web, mas `app.config.ts` declara só iOS/Android. Não há suporte público web homologado nesta revisão.                                                                 |
-| Agenda                | Cinco tabelas `eventos`, `eventos_datas`, `espacos`, `categorias`, `eventos_categorias`; dados públicos condicionados a visibilidade.                                                                                          |
-| Importador            | Só `workers/coleta` existe; lê a API Ceará, usa `America/Fortaleza` e grava via `importar_agenda`. Generalização não implementada.                                                                                             |
-| U0.1/U0.2             | Baseline local e inventário registrados; capacidade, projeto hospedado, volumes reais e backups continuam pendentes de humano.                                                                                                 |
-| U0.3/U0.4             | Painel mínimo e prova de instalação/composição/build registrados; D6 revisada e ADR-0008 escrito. Login e operações ainda não entregues.                                                                                       |
-| U1                    | Migrations de baseline legado, RLS/vínculo de curador, guard por fonte e precedência do guard estão no Git, assim como provisionador/testes. Isso não prova aplicação em ambiente hospedado nem migração dos dados históricos. |
-| Múltiplas integrações | Não há conexão Funarte/MinC ou segunda instância/cidade comprovada nesta revisão. Não apresentar fixtures como fontes reais integradas.                                                                                        |
+| Frente                   | Estado observado e limite                                                                                                                                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| App                      | Expo consulta `/rest/v1/eventos`; valida Zod, pagina e mantém favoritos por `fonte:id_externo`. A demonstração Android não prova publicação ou testes iOS.                                                                     |
+| Web público              | Alvo habilitado na Fase 0 por frente (S0.7); sem homologação de produção ou paridade comprovada nas três plataformas.                                                                                                          |
+| Agenda                   | Cinco tabelas `eventos`, `eventos_datas`, `espacos`, `categorias`, `eventos_categorias`; dados públicos condicionados a visibilidade.                                                                                          |
+| Importador institucional | `workers/coleta` lê a API Ceará, usa `America/Fortaleza` e grava via `importar_agenda`. Generalização não implementada.                                                                                                        |
+| Coleta externa           | `workers/sympla` lê detalhe de arquivo e grava em preparação (S0.3). Não descobre, pagina nem busca detalhes na fonte; as demais fontes ainda não têm adaptador neste monorepo.                                                |
+| U0.1/U0.2                | Baseline local e inventário registrados; capacidade, projeto hospedado, volumes reais e backups continuam pendentes de humano.                                                                                                 |
+| U0.3/U0.4 e S0.4         | Prova de instalação/composição/build, D6 e ADR-0008 registrados. S0.4 acrescentou login e operações mínimas locais; painel completo continua em U5.                                                                            |
+| U1                       | Migrations de baseline legado, RLS/vínculo de curador, guard por fonte e precedência do guard estão no Git, assim como provisionador/testes. Isso não prova aplicação em ambiente hospedado nem migração dos dados históricos. |
+| Múltiplas integrações    | Não há conexão Funarte/MinC ou segunda instância/cidade comprovada nesta revisão. Fixtures não são fontes reais integradas.                                                                                                    |
 
-Fontes: [baseline U0.1](relatorios/unificacao-baseline.md), [inventário U0.2](relatorios/unificacao-dados.md), [prova U0.3](relatorios/unificacao-painel-compatibilidade.md) e [demonstração Android](relatorios/app-mobile-android.md). Os resultados neles são históricos, não testes repetidos nesta revisão.
+Fontes: [baseline U0.1](relatorios/unificacao-baseline.md), [inventário U0.2](relatorios/unificacao-dados.md), [prova U0.3](relatorios/unificacao-painel-compatibilidade.md), [demonstração Android](relatorios/app-mobile-android.md) e [Fase 0 por frente](relatorios/fase0-frentes.md). Os resultados neles são históricos, não testes repetidos nesta revisão.
 
 A origem da coleta é `/mnt/data/code/farol/raspagem-farol`, inspecionada no inventário no HEAD `941a75866c329594fc792501734c48e19afce8ff`. Revalidar HEAD e WIP antes de portar: `chart/templates/dev-postgres.yaml`, `chart/templates/migration-job.yaml` e `kimi-export-session_-20261007-011240.md` eram alterações alheias; não limpar, copiar ou commitar esses WIP.
 
@@ -93,7 +94,7 @@ Registros já existentes nas instâncias entram pela sincronização, sem repeti
 - `apps/app/`: aplicativo público compartilhado, com adaptação web comprovada; nunca importar MUI/React-admin.
 - `apps/painel/`: SPA administrativa separada; nunca importar Expo/React Native ou o pacote i18n inteiro dependente de expo-localization. Mensagens administrativas puras; tokens podem ser compartilhados sem UI.
 - `workers/coleta/`: importador API leve existente, a evoluir por contratos configuráveis; não adicionar Chromium/Crawlee.
-- `workers/sympla/`: pacote ainda proposto para o primeiro porte Chromium. Outros scrapers terão adapters/fixtures próprios; pacotes/processos adicionais só se isolamento e dependências justificarem, não um microserviço por fonte.
+- `workers/sympla/`: já contém a coleta mínima por arquivo (S0.3); ponto de partida de U2. Manter adaptadores e fixtures por fonte em um worker, com execução isolável por fonte/recorte. Só separar pacote ou processo se dependências ou isolamento justificarem.
 - `supabase/migrations/` e `supabase/tests/`: uma autoridade de schema e testes de acesso/transação. Numeração nova deve ser descoberta no momento da escrita; `20261117000400` já é ocupado pelo guard.
 - `packages/compat-csv/`: pacote puro proposto para preservar o renderer legado, sem React/Expo/ORM.
 - `scripts/migracao/`: ferramentas operacionais; não entram em bundles de cliente.
@@ -101,7 +102,7 @@ Registros já existentes nas instâncias entram pela sincronização, sem repeti
 
 Manter Node 26.10.0, pnpm 12.18.0 e catálogo vigente; não rebaixar versões para o shell. Não trazer NestJS, Express, AdminJS, Refine, Drizzle, reflect-metadata ou middleware de sessão legado. Fetch nativo é suficiente no app/importadores atuais; o SDK do painel não obriga SDK nos demais pacotes.
 
-Preservar inicialmente o motor de scraping caracterizado: Crawlee/Playwright/Cheerio, versões conferidas na origem e pins do porte anterior (`3.18.1`, `1.63.0`, `1.2.0`). Declarar `@crawlee/memory-storage` diretamente se importado. Não atualizar motor junto do porte nem afirmar menos dependências transitivas sem medir.
+Preservar a caracterização do legado, sem portar seu motor como pré-requisito. Preferir API ou feed documentado e autorizado com cobertura; na alternativa de páginas públicas autorizadas, validar HTTP sem navegador primeiro. Só introduzir Chromium se a cobertura depender de renderização e a origem o permitir. Nesse caso conferir a compatibilidade de runtime, versão e imagem pinada antes de escolher o motor, sem trazer dependências de navegador para app, painel ou importador institucional. O [detalhamento de U2](plans/2026-11-19-gitnexus-plan-crawler-quatro-fontes.md) registra a divergência dos pins históricos.
 
 ### 3.2 Modelo multidimensional antes da expansão
 
@@ -182,17 +183,29 @@ U1.0 (tooling), U1.1 (DDL legado), U1.2 (RLS/vínculo), U1.3 (provisionamento) e
 
 ### U2 — Múltiplos scrapers com piloto Sympla
 
-| ID / dependências | Entrega e escopo candidato                                                                                                     | Pronto quando / juiz                                                                                                                                                         |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| U2.1 / U1.5       | Portar parser, engine, tipos, normalização/classificação e fixtures para `workers/sympla`, sem Nest/ORM e sem editar a origem. | Testes caracterizados do parser/engine/filters passam; Playwright/Chromium ficam fora do app e do importador API.                                                            |
-| U2.2 / U2.1       | Relatório puro de coleta/normalização no mesmo pacote.                                                                         | Fixture cobre incluído/excluído/incompleto, timezone explícito, duplicata, parcial, 429 e zero anômalo; sem campo inventado ou segredo em diagnóstico.                       |
-| U2.3 / U2.2       | Contexto e persistência por RPC de servidor, migrations e testes aditivos.                                                     | Coletor confere fonte/conector/recorte ativos antes de navegar e ao gravar; anon/authenticated não autorizado não executam; bruto não entra na agenda.                       |
-| U2.4 / U2.3       | Replay, versões, contador e concorrência em worker/testes e RPCs da tarefa anterior.                                           | Mesmo run key não duplica nem incrementa versão; duas sessões reais preservam ciclos; crawl antigo fica skipped; partial/failed não vira sucesso.                            |
-| U2.5 / U2.4       | Entrypoint e cliente fetch com validação, limites e retries.                                                                   | Reenvio conserva chave, erro recuperável não vaza conteúdo/credencial; fixture completa sai 0 e partial/failed sai diferente de 0.                                           |
-| U2.6 / U2.5       | Agendamento proposto em `.github/workflows/sympla.yml`, inicialmente desativado.                                               | Sem dois escritores; timeout/concorrência por escopo, browser pinado e destinatário de alerta conferidos. Queda antes da persistência é falha do job, não job_run inventado. |
-| U2.7 / U2.6       | Segundo scraper/adapter e segunda cidade no contrato U1.5; pacote/local de adapter definido no detalhamento da fase.           | Fixture própria e execução isolada de cada fonte/cidade; falha, revisita ou desativação de uma não apaga registros nem bloqueia a outra indevidamente.                       |
+O [plano dos crawlers](plans/2026-11-19-gitnexus-plan-crawler-quatro-fontes.md)
+detalha a pesquisa por plataforma, as tarefas e seus critérios de aceite. A
+ordem de implementação é **Sympla → Outgo → Ingresse → Bilheteria Digital**.
+Os resultados da amostra pública não são aceite de cobertura ou permissão.
 
-**Gate U2:** testes do pacote, integração RPC/banco local e arquitetura aprovados; nenhuma preparação visível no aplicativo. Coleta viva, ativação e troca de escritor ainda exigem autorização. Não desativar o legado por portar código.
+| ID / dependências | Entrega e escopo candidato                                                                                                           | Pronto quando / juiz                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| U2.1 / U1.5       | Evoluir o parser Sympla S0.3 e acrescentar descoberta paginada com fixtures em `workers/sympla`, sem Nest/ORM e sem editar o legado. | Distingue resultados, carrosséis e Bileto na amostra; valida identidade e fim do percurso. Chromium não é pré-requisito.                                                     |
+| U2.2 / U2.1       | Normalização e relatório de coleta/cobertura.                                                                                        | Fixture cobre incluído/excluído/incompleto, fuso explícito, duplicata, parcial, 429 e zero anômalo. Relatório não inventa campos nem ecoa credenciais.                       |
+| U2.3 / U2.2       | Contexto e persistência por RPC de servidor, migrations e testes aditivos.                                                           | Valida fonte/conector/recorte ativos antes de buscar e ao gravar. `anon` e `authenticated` não executam a RPC do crawler; dados não entram na agenda.                        |
+| U2.4 / U2.3       | Replay, versões, contagens e concorrência.                                                                                           | Mesmo run key não duplica nem incrementa versão; duas sessões reais preservam ciclos; execução antiga não grava; parcial/falha não vira sucesso.                             |
+| U2.5 / U2.4       | Completar o CLI de rede e integração de transporte/persistência.                                                                     | Fixtures e loopback exercitam limites, retries e erros; reenvio conserva chave, erro não vaza dados; execução completa sai 0 e parcial/falha sai diferente de 0.             |
+| U2.6 / U2.5       | Execução manual autorizada e agendamento inicialmente desativado; `.github/workflows/sympla.yml` é candidato.                        | Um escritor, cobertura medida, timeout e canal de alerta verificados; se usar browser, imagem e versão compatíveis. Falha antes de obter concessão só aparece no log do job. |
+| U2.7 / U2.6       | Outgo e segunda cidade sob o contrato U1.5, como mínimo de M2. Ingresse e Bilheteria Digital vêm na expansão.                        | Cada fonte tem contrato, fixture e execução próprios. Falha, revisita ou desativação de uma não apaga registros nem bloqueia outra indevidamente.                            |
+
+**Gate técnico U2:** testes do pacote, integração RPC/banco local e arquitetura
+aprovados; nenhuma preparação visível no aplicativo. O aceite técnico de cada
+fonte precede a implementação da próxima. **Gate operacional por fonte:**
+permite testar a origem apenas após acordo, e ativar somente após demonstrar
+cobertura. Antes de escritas recorrentes no destino operacional, assegurar que
+curadoria e envio dependam da versão revisada (U3.1/U4.3). Coleta viva,
+ativação e troca de escritor exigem autorização própria. Não desativar o legado
+por portar código.
 
 ### U3 — Curadoria, incorporação e sincronização institucional
 

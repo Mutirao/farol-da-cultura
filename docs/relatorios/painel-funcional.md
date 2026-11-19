@@ -1,6 +1,9 @@
 # Painel funcional — revisão do plano e paridade com o painel antigo
 
-**Estado:** histórico da verificação local (19/11/2026). **Escopo:** o que falta para o painel novo (`apps/painel`)
+**Histórico — 19/11/2026.** Este relatório registra a validação local dos
+dois ciclos do painel; não autoriza publicação nem substitui o plano vigente.
+
+**Escopo:** o que falta para o painel novo (`apps/painel`)
 substituir na operação o painel do Raspagem-Farol (AdminJS em
 `raspagem.mutirao.org.br`), integrado com coleta, curadoria, incorporação,
 agenda e app. Referências: [plano unificado](../PLANO-UNIFICADO-2026-11-16.md)
@@ -72,12 +75,60 @@ emulado e o cancelamento foi observado no desktop, sem enviar decisão.
 A revisão independente confirmou a correção do filtro de data e reexecutou
 os 16 testes de lista e curadoria em lote. Na prévia, o filtro também reabriu
 com a data correta e atualizou a URL após uma edição em desktop e celular.
-A aprovação em lote por um curador autenticado no navegador foi validada
-pelo responsável. Isso não comprova login ou curadoria no ambiente hospedado.
+A prévia usa dados locais de teste. O login local foi confirmado pelo operador
+com registro recente no Supabase, mas o navegador de automação não compartilha
+essa sessão. Ainda falta verificar a curadoria em lote na versão final com
+uma sessão autenticada.
+**Rechecagem local (19/11/2026):** na árvore de trabalho sobre `1f18f77`, que
+já inclui mudanças em andamento na consulta de instâncias, passaram o build
+com configuração de teste, a checagem de tipos, os 37 testes do painel e os
+20 do provisionamento local. Em pilhas descartáveis, passaram os 251 testes
+pgTAP (38 de curadoria em lote) e os 7 passos do `pnpm e2e:esqueleto`.
+O E2E cobre curadoria individual via API; a aprovação em lote no navegador
+com curador autenticado continua pendente. A consulta de instâncias passou
+a ser verificada separadamente no ciclo 2.
 
-**Ciclo 2 (exportação, pendente):** U4.1, renderer do CSV de 29 colunas e do
-CSV de conferência com fixtures sanitizadas do legado; depois, comparação
-entre SQL e Edge Function para U4.2.
+**Ciclo 2 (local): instâncias oficiais.** Em **Operação → Instâncias oficiais**,
+o Mapa Cultural do Ceará já está configurado no servidor. Buscar gera uma
+prévia sem escrita; sincronizar é opcional, pede confirmação e atualiza a
+agenda pública do Farol sem enviar nada ao Mapas. O formulário por evento
+saiu do detalhe, mas os vínculos existentes e as RPCs foram preservados.
+
+Na verificação da função em Deno com PostgREST e banco descartável, a API do
+Ceará devolveu 289 eventos e 355 ocorrências na janela de 19/11/2026 a
+20/01/2027. O banco de teste permaneceu com zero eventos dessa fonte após a
+busca; a sincronização criou os 289 eventos. Sem sessão (401), sem curador
+(403) ou com curador desativado (403), a função negou acesso. No banco de
+demonstração a agenda manteve 176 eventos e 251 ocorrências. Não houve
+publicação hospedada nem ativação de agendamento.
+
+A revisão apontou três problemas: sobrescrita após importações concorrentes,
+ocorrências fora do período na prévia e perda de foco durante a busca. O banco
+agora compara a versão lida antes da busca na mesma transação da gravação.
+Com dois lotes simultâneos da mesma versão, o PostgREST aceitou um (200),
+recusou o outro (409) e somente o vencedor persistiu. A prévia exclui e
+contabiliza ocorrências fora da janela, e o botão mantém o foco durante a busca.
+Passaram 259 asserções pgTAP na pilha descartável com a migração nova.
+
+No Chromium, a prévia com componentes reais e dados sintéticos foi
+inspecionada em 1440 × 900, 768 × 900 e 375 × 812. Em cada tamanho, o texto
+e os botões couberam sem rolagem horizontal; no celular emulado, as ações
+ficaram empilhadas e o primeiro evento apareceu na primeira tela. O diálogo
+abriu com foco em **Cancelar** e devolveu o foco para **Sincronizar agenda**
+ao cancelar no celular ou pressionar Escape no desktop. Essa prévia não
+usou login nem gravou dados; o teste da função e do banco foi separado.
+
+**Checagens locais dos dois ciclos:** passaram o Biome, a instalação com
+lockfile congelado, a checagem de tipos do tooling, as 13 tarefas de tipos e
+testes do Turbo, os 51 testes de scripts, o build do painel e o `deno check`
+da função. Na pilha descartável, passaram os 259 testes pgTAP e os 7 passos
+do e2e. A repetição do teste contra a API oficial manteve zero eventos no
+banco de teste após a busca e importou 289 eventos e 355 ocorrências apenas
+após a confirmação. Não foi feita homologação hospedada.
+
+**Próximo trabalho de exportação:** U4.1, renderer do CSV de 29 colunas e do
+CSV de conferência com fixtures do legado; depois, comparação SQL e Function
+nos mesmos fixtures para U4.2.
 
 **Ciclo 3 (depende de gate):** U4.3 (geração e download persistidos), dados
 reais do legado num banco local isolado (U6.1/U6.2, ensaio) e hospedagem.

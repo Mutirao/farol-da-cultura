@@ -1,13 +1,8 @@
-import {
-  Alert,
-  Button,
-  TextField as MuiTextField,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Button, Stack } from "@mui/material";
 import { useState } from "react";
 import {
   DateField,
+  Link,
   Show,
   SimpleShowLayout,
   TextField,
@@ -15,24 +10,21 @@ import {
   useRecordContext,
   useRefresh,
 } from "react-admin";
+import { formatoData, m } from "../mensagens";
 import { supabase } from "../supabaseClient";
-import {
-  curarEvento,
-  type EventoColetado,
-  registrarIncorporacao,
-} from "./acoes";
+import { curarEvento, type EventoColetado } from "./acoes";
 import { EstadoVinculoTexto } from "./EstadoVinculoTexto";
 import { useVinculo } from "./useVinculos";
 
 function mensagemErroCuradoria(erro: unknown): string {
   const codigo = (erro as { code?: string } | undefined)?.code;
   if (codigo === "23505") {
-    return "Version divergente: outra coleta ou curadoria mudou o evento; recarregue a página.";
+    return m.evento.divergencia;
   }
   if (codigo === "42501") {
-    return "Operador sem vínculo de curador ativo.";
+    return m.evento.semCurador;
   }
-  return "Falha ao registrar a curadoria.";
+  return m.evento.falhaCuradoria;
 }
 
 function AcoesDeCuradoria() {
@@ -51,7 +43,7 @@ function AcoesDeCuradoria() {
         { id: record.id, version: record.version },
         status,
       );
-      notify(status === "approved" ? "Evento aprovado." : "Evento rejeitado.", {
+      notify(status === "approved" ? m.evento.aprovado : m.evento.rejeitado, {
         type: "info",
       });
     } catch (erro) {
@@ -69,7 +61,7 @@ function AcoesDeCuradoria() {
         disabled={enviando}
         onClick={() => curar("approved")}
       >
-        Aprovar
+        {m.evento.aprovar}
       </Button>
       <Button
         variant="outlined"
@@ -77,100 +69,66 @@ function AcoesDeCuradoria() {
         disabled={enviando}
         onClick={() => curar("rejected")}
       >
-        Rejeitar
+        {m.evento.rejeitar}
       </Button>
     </Stack>
   );
 }
 
-function RegistrarIncorporacaoForm() {
+function VinculoInstitucional() {
   const record = useRecordContext<EventoColetado>();
-  const refresh = useRefresh();
-  const notify = useNotify();
-  const [instancia, setInstancia] = useState("");
-  const [base, setBase] = useState("mapa-cultural-ce");
-  const [mapasId, setMapasId] = useState("");
-  const [enviando, setEnviando] = useState(false);
-  const [estadoVinculo, refetchVinculo] = useVinculo(supabase, record?.id);
-
-  if (!record || !supabase) return null;
-
-  if (record.curation_status !== "approved") {
-    return (
-      <Alert severity="info">
-        Registrar incorporação exige evento aprovado na curadoria.
-      </Alert>
-    );
-  }
-
-  const registrar = async () => {
-    if (!supabase) return;
-    setEnviando(true);
-    try {
-      await registrarIncorporacao(supabase, {
-        eventId: record.id,
-        instancia,
-        base,
-        mapasId,
-      });
-      notify(
-        "Incorporação registrada (estado: registrado, aguarda confirmação).",
-        { type: "info" },
-      );
-      refetchVinculo();
-    } catch {
-      notify("Falha ao registrar a incorporação.", { type: "error" });
-    } finally {
-      setEnviando(false);
-      refresh();
-    }
-  };
-
-  return (
-    <Stack spacing={1}>
-      <Typography variant="subtitle1">
-        Registrar incorporação na instância
-      </Typography>
-      <EstadoVinculoTexto vinculo={estadoVinculo} />
-      <MuiTextField
-        label="Instância"
-        value={instancia}
-        onChange={(evento) => setInstancia(evento.target.value)}
-      />
-      <MuiTextField
-        label="Base"
-        value={base}
-        onChange={(evento) => setBase(evento.target.value)}
-      />
-      <MuiTextField
-        label="ID no Mapas"
-        value={mapasId}
-        onChange={(evento) => setMapasId(evento.target.value)}
-      />
-      <Button
-        variant="contained"
-        disabled={enviando || !instancia || !base || !mapasId}
-        onClick={registrar}
-      >
-        Registrar incorporação
-      </Button>
-    </Stack>
-  );
+  const vinculo = useVinculo(supabase, record?.id);
+  return vinculo ? <EstadoVinculoTexto vinculo={vinculo} /> : null;
 }
 
 export function EventoShow() {
   return (
-    <Show title="Evento coletado">
+    <Show title={m.evento.titulo}>
       <SimpleShowLayout>
-        <TextField source="id" label="ID" />
-        <TextField source="title" label="Título" />
-        <TextField source="city" label="Cidade" />
-        <DateField source="starts_at" label="Início" showTime />
-        <TextField source="collection_status" label="Coleta" />
-        <TextField source="curation_status" label="Curadoria" />
-        <TextField source="version" label="Versão" />
+        <TextField source="id" label={m.campos.id} />
+        <TextField source="title" label={m.campos.title} />
+        <TextField source="city" label={m.campos.city} />
+        <DateField
+          source="starts_at"
+          label={m.campos.starts_at}
+          showTime
+          locales="pt-BR"
+          options={formatoData}
+        />
+        <TextField source="description" label={m.campos.description} />
+        <DateField
+          source="ends_at"
+          label={m.campos.ends_at}
+          showTime
+          locales="pt-BR"
+          options={formatoData}
+        />
+        <TextField source="venue_name" label={m.campos.venue_name} />
+        <TextField source="is_free" label={m.campos.is_free} />
+        <TextField source="source_id" label={m.campos.source_id} />
+        <TextField
+          source="space_match_status"
+          label={m.campos.space_match_status}
+        />
+        <TextField source="export_status" label={m.campos.export_status} />
+        <TextField
+          source="mapas_import_status"
+          label={m.campos.mapas_import_status}
+        />
+        <TextField
+          source="collection_status"
+          label={m.campos.collection_status}
+        />
+        <TextField source="curation_status" label={m.campos.curation_status} />
+        <TextField source="version" label={m.campos.version} />
         <AcoesDeCuradoria />
-        <RegistrarIncorporacaoForm />
+        <VinculoInstitucional />
+        <Alert severity="info">
+          <Stack spacing={1} alignItems="flex-start">
+            {m.evento.sobreInstancias}
+            <Link to="/instancias-oficiais">{m.instancias.titulo}</Link>
+          </Stack>
+        </Alert>
       </SimpleShowLayout>
     </Show>
   );

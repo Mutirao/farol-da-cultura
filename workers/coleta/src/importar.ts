@@ -8,6 +8,21 @@ if (!url || !chave) {
   throw new Error("defina SUPABASE_URL e SUPABASE_SECRET_KEY no ambiente");
 }
 
+const respostaVersao = await fetch(
+  new URL("/rest/v1/rpc/versao_agenda_ce", url),
+  {
+    method: "POST",
+    headers: { apikey: chave, authorization: `Bearer ${chave}` },
+    redirect: "error",
+    signal: AbortSignal.timeout(15_000),
+  },
+);
+if (!respostaVersao.ok)
+  throw new Error(`versao_agenda_ce respondeu ${respostaVersao.status}`);
+const versao = await respostaVersao.json();
+if (typeof versao !== "number" || !Number.isSafeInteger(versao) || versao < 0)
+  throw new Error("versão da agenda inválida");
+
 const periodo = janela();
 const linhas = await buscarLinhas(periodo.primeiroDia, periodo.ultimoDia);
 const { lote, rejeitadas } = normalizar(linhas, {
@@ -27,15 +42,19 @@ const resposta = await fetch(new URL("/rest/v1/rpc/importar_agenda", url), {
   },
   body: JSON.stringify({
     p_fonte: FONTE,
-    p_lote:
-      process.env.PERMITIR_REMOCAO_EM_MASSA === "true"
-        ? { ...lote, permitir_remocao_em_massa: true }
-        : lote,
+    p_lote: {
+      ...lote,
+      versao_esperada: versao,
+      permitir_remocao_em_massa:
+        process.env.PERMITIR_REMOCAO_EM_MASSA === "true",
+    },
   }),
   signal: AbortSignal.timeout(60_000),
 });
 const corpo = await resposta.text();
 if (!resposta.ok) {
+  if (resposta.status === 409)
+    throw new Error("agenda alterada durante a coleta; inicie uma nova coleta");
   throw new Error(`importar_agenda respondeu ${resposta.status}: ${corpo}`);
 }
 

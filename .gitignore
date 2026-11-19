@@ -5,6 +5,9 @@ coverage/
 *.log
 .DS_Store
 
+# Índice local do GitNexus (binário, não versionar).
+.gitnexus/
+
 # Segredos (SEG-01): nenhum .env entra no repositório, exceto o modelo.
 .env*
 !.env.example

@@ -1,6 +1,6 @@
 # Farol da Cultura — roadmap
 
-**Atualizado:** 2026-11-17. **Referências:** [plano unificado](PLANO-UNIFICADO-2026-11-16.md)
+**Atualizado:** 2026-11-19. **Referências:** [plano unificado](PLANO-UNIFICADO-2026-11-16.md)
 (contratos e tarefas U0–U8), [ontologia e fluxo](ONTOLOGIA-E-FLUXO.md),
 [ADR-0009](adr/0009-ecossistema-institucional.md).
 
@@ -41,18 +41,34 @@ todas ──► S0.10
 ```
 
 Limites da Fase 0: nenhum deploy, segredo, coleta viva, escrita em instância
-real ou publicação em loja. Chromium, CSV compatível de 29 colunas e contratos
-completos de múltiplas instâncias ficam para o roadmap mínimo.
+real ou publicação em loja. Coleta externa em rede, CSV compatível de 29 colunas
+e contratos completos de múltiplas instâncias ficam para o roadmap mínimo.
 
 ## 2. Roadmap mínimo depois da Fase 0
 
-| Marco                           | Resultado                                                                                                       | Tarefas U         | Gates humanos                                                     |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------------------------- |
-| M1 Dados reais do piloto        | agenda do Ceará sincronizada no Supabase hospedado; app Android interno                                         | U0.2, U1          | projeto/capacidade (D3), permissão da Secult, ativar `coleta.yml` |
-| M2 Scraper real                 | Sympla com navegador, replay e concorrência, agendamento desligado por padrão; segundo scraper e segunda cidade | U2                | ativação de cada fonte                                            |
-| M3 Curadoria completa           | decisão auditada, preparação de envio, CSV compatível com o legado, painel operacional                          | U3.1–U3.2, U4, U5 | exceção CSV/Edge, canal de alerta                                 |
-| M4 Primeira instância real      | contrato e permissão de uma instância, confirmação contra a API real, instâncias com base compartilhada         | U1.5, U3.3–U3.5   | permissão institucional, política de revalidação                  |
-| M5 Três plataformas publicáveis | Android, iOS e web com paridade testada; hospedagem no modelo do painel; corte e aposentadoria do legado        | U6, U7, U8.3–U8.4 | lojas, Apple, hospedagem, janela de corte                         |
+| Marco                           | Resultado                                                                                                     | Tarefas U         | Gates humanos                                                     |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------------------------- |
+| M1 Dados reais do piloto        | agenda do Ceará sincronizada no Supabase hospedado; app Android interno                                       | U0.2, U1          | projeto/capacidade (D3), permissão da Secult, ativar `coleta.yml` |
+| M2 Coleta externa               | Sympla, depois Outgo e um segundo recorte homologado; replay, concorrência e agendamento desligado por padrão | U2                | permissão, cobertura e ativação por fonte                         |
+| M3 Curadoria completa           | decisão auditada, preparação de envio, CSV compatível com o legado, painel operacional                        | U3.1–U3.2, U4, U5 | exceção CSV/Edge, canal de alerta                                 |
+| M4 Primeira instância real      | contrato e permissão de uma instância, confirmação contra a API real, instâncias com base compartilhada       | U1.5, U3.3–U3.5   | permissão institucional, política de revalidação                  |
+| M5 Três plataformas publicáveis | Android, iOS e web com paridade testada; hospedagem no modelo do painel; corte e aposentadoria do legado      | U6, U7, U8.3–U8.4 | lojas, Apple, hospedagem, janela de corte                         |
+
+### Expansão da coleta externa (U2)
+
+| Ordem | Fonte              | Próxima prova                                                                                                                                            |
+| ----- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Sympla             | Aproveitar o parser de detalhe existente e provar descoberta, fim de paginação e cobertura por HTTP no recorte; navegador só se necessário e autorizado. |
+| 2     | Outgo              | Confirmar recorte municipal, paginação e ID estável; testar a leitura do HTML renderizado no servidor se não houver feed autorizado.                     |
+| 3     | Ingresse           | Buscar contrato de catálogo autorizado; avaliar navegador apenas se o catálogo público for permitido e depender de renderização.                         |
+| 4     | Bilheteria Digital | Provar busca, recorte e ID estável no detalhe; a vitrine HTML, sozinha, não é cobertura.                                                                 |
+
+M2 tem como mínimo Sympla, Outgo e dois recortes testados. Ingresse e
+Bilheteria Digital ampliam U2 depois desse mínimo.
+O [plano dos crawlers](plans/2026-11-19-gitnexus-plan-crawler-quatro-fontes.md)
+registra evidências, tarefas e critérios de aceite. Uma fonte só avança para
+operação após aceite técnico, permissão, cobertura comprovada e aprovação
+humana; o aceite da documentação não habilita coleta.
 
 ## 3. Melhorias registradas
 

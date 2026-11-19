@@ -1,8 +1,8 @@
 # Painel — curadoria mínima (S0.4)
 
 Painel operacional: login de curador, lista/detalhe dos eventos coletados,
-aprovação e rejeição individual ou em lote, exportação mínima e registro de
-incorporação.
+aprovação e rejeição individual ou em lote, exportação mínima e consulta da
+agenda por instância oficial.
 Supera a prova de composição U0.3 (histórico em
 [relatório U0.3](../../docs/relatorios/unificacao-painel-compatibilidade.md)).
 D6 revisada pelo usuário em 2026-11-16; ver [ADR-0008](../../docs/adr/0008-plataforma-unificada.md)
@@ -11,6 +11,34 @@ e [ADR-0009](../../docs/adr/0009-ecossistema-institucional.md).
 **Curadoria nunca publica direto na agenda.** Aprovar não envia nem publica;
 exportar não comprova incorporação. A atualização da agenda pública só lê
 eventos já disponíveis na API institucional.
+
+## Instâncias oficiais
+
+Em **Operação → Instâncias oficiais**, o **Mapa Cultural do Ceará** já vem
+configurado no servidor. **Buscar eventos** consulta a API do dia atual até
+62 dias à frente (fuso de Fortaleza), mostra contagens e até 50 eventos em
+ordem de início, sem gravar nada. A lista de fontes de coleta é outro recurso.
+
+**Sincronizar agenda** pede confirmação e atualiza a agenda pública do Farol
+no período consultado; não escreve no Mapas nem na fila de curadoria. O servidor
+refaz a busca e recusa o lote se o conteúdo mudou desde a prévia ou se há dados
+inválidos, repetidos, fora do período ou nenhuma ocorrência. O importador mantém
+a proteção contra remoções em massa. Se outra execução gravar enquanto a fonte
+é consultada, o painel pede uma nova busca. O resultado mostra o que foi gravado.
+
+Para a consulta local no Supabase já iniciado, na raiz do repositório:
+`pnpm supabase functions serve instancias-oficiais`. Mantenha esse processo aberto;
+não é necessário resetar o banco. A função exige curador ativo. A consulta não
+precisa de permissão de escrita; **a opção de sincronizar fica desligada por
+padrão**. Use `FAROL_SYNC_MANUAL=true` na configuração da função somente em um
+ambiente autorizado para atualizar a agenda e com a migração de versionamento
+aplicada. Em ambiente hospedado a função precisa estar publicada separadamente
+da SPA. Veja os limites e o agendamento em
+[@farol/coleta](../../workers/coleta/README.md).
+
+O piloto não permite cadastrar URLs pelo navegador. Para adicionar outra
+instância, primeiro valide a origem, o fuso, a identidade da base e o recorte
+que pode ser sincronizado. Nenhum agendamento novo é ativado por essa tela.
 
 ## Como rodar localmente
 
@@ -124,10 +152,11 @@ do e-mail de verdade; nada no painel muda.
   limpa ao mudar de página, filtros ou ordenação. O painel confirma com o
   curador e envia os IDs e versões à RPC `curar_eventos`, que informa quantos
   eventos foram alterados, estavam em conflito ou não foram encontrados.
-- **Vínculo institucional** (lista e detalhe): lê
-  `public.vinculos_institucionais` (contrato do S0.2) por `event_id`.
-  O formulário registra o destino de um evento aprovado; o vínculo fica
-  `registrado` até a confirmação pela API institucional, feita fora do painel.
+- **Vínculo institucional** (coluna na lista e estado no detalhe, quando existe): lê
+  `public.vinculos_institucionais` (contrato do S0.2) por `event_id`; evento
+  sem linha aparece como "Sem vínculo institucional" na lista. O formulário por
+  evento saiu do painel; os vínculos existentes e as RPCs de registro e
+  confirmação não foram alterados.
 - **Exportar aprovados (CSV/JSON mínimo)**: botão na lista, busca
   `curation_status=approved` direto (independe da paginação/filtro atual da
   tela) e gera o arquivo no navegador. Rotulado como exportação mínima — não
